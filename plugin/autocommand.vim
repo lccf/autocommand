@@ -4,7 +4,7 @@
 "     Author: lcc
 "      Email: leftcold@gmail.com
 "    Version: 0.1
-" LastChange: 06/01/2012 01:21
+" LastChange: 06/16/2012 20:39
 "    History: 
 " --------------------------------------------------
 " 需python支持
@@ -16,12 +16,12 @@ let g:autoCommandIsLoad=0
 " 脚本目录
 let s:scriptDir=expand('<sfile>:h')
 " 调试模式
-let s:isDebug=1
+let s:isDebug=0
 
 fu! autocommand#main()
   " 保存文件
-  if exists('*Autocommand_before')
-    cal Autocommand_before(expand('%:p'))
+  if exists('*autocommand_before')
+    cal autocommand_before(expand('%:p'))
   el
     sil up
   en
