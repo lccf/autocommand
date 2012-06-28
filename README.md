@@ -2,6 +2,18 @@
 
 autocommand 是一款vim插件（依赖python），用来自动执行命令行操作。它最初被设计的应用场景是当保存 haml、sass、coffee 等类型文件时，生成对应的 html、css、javascript 文件，当然它的作用远不止这些，你可以用它来行任意需要自动执行的命令，例如调用 sed 去处理文件缩进、调用编译器去编译你当前编辑的程序代码等。它还支持通过配置文件来对不同的项目定制不同的命令。
 
+<a name="a0" />
+##目录
+- [安装](#a1)
+- [使用说明](#a2)
+  - [1.设置调用快捷键](#a2_0)
+  - [2.前置函数](#a2_1)
+  - [3.针对文件类型](#a2_2)
+  - [4.创建自定义配置文件](#a2_3)
+  - [5.高级用法](#a2_4)
+
+
+<a name="a1" />
 ##安装
 
 需求
@@ -11,8 +23,10 @@ autocommand 是一款vim插件（依赖python），用来自动执行命令行�
 
 将 plugin 目录拷贝至对应的 vim 默认目录即可。
 
+<a name="a2" />
 ##使用说明
 
+<a name="a2_0" />
 ###1.设置调用快捷键
 
 在vim配置文件中增加如下配置项：
@@ -21,17 +35,19 @@ autocommand 是一款vim插件（依赖python），用来自动执行命令行�
 
 定义一个全局变量 acmd_call_key 该变量的值会被映射为快捷键。上例中映射 Ctrl+s 作为调用快捷键，即常用的保存快捷键。当按下 Ctrl+s 快捷键时 autocommand 会自动尝试保存该文件，然后执行对应的命令。
 
+<a name="a2_1" />
 ###2.前置函数
 
 在vim配置文件中增加如下代码：
 
 	fu! autocommand_before(fullFileName)
-		"echo a:fullFileName
-		sil up
+	  "echo a:fullFileName
+	  sil up
 	endf
 
 autocommand 允许在执行前调用一个用户自定义的函数对当前文件进行预处理，该函数名称约定为 autocommand_before 。 接受一个名为 fullFileName 的参数是当前正在编辑文件的全路径名称。 autocommand 会自动保存当前文件默认情况下你并不需要使用前置函数。
 
+<a name="a2_2" />
 ###3.针对文件类型
 
 在vim配置文件中增加如下配置项：
@@ -54,6 +70,7 @@ autocommand 允许在执行前调用一个用户自定义的函数对当前文�
 
 *#{$fileName}表示当前文件名
 
+<a name="a2_3" />
 ###4.创建自定义配置文件
 
 打开vim执行如下命令：
@@ -94,6 +111,7 @@ autocommand 允许在执行前调用一个用户自定义的函数对当前文�
 
 以上示例摘自本人开发的项目配置。首先调用 sass 将 .sass 类型的文件转换为 css，再利用 replaceIndent 脚本将文件中的2个空格替换为4个空格（项目需要），再调用 cp 命令将文件拷贝一份至项目根录目的 public/css 目录下。
 
+<a name="a2_4" />
 ###5.高级用法
 
 待添加
