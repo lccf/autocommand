@@ -105,4 +105,8 @@ let s:cmdName=exists('g:acmd_cmd') ? g:acmd_cmd : 'Acmd'
 if s:cmdName!=''
   exe 'com! -nargs=0 '.s:cmdName.' call autocommand#main()'
 en
+" 设置默认自动转码
+if !exists( 'g:acmd_auto_encode' )
+  let g:acmd_auto_encode=1
+en
 " vim:sw=2:ts=2:sts=2:et:fdm=marker:fdc=1
