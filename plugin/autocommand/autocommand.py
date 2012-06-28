@@ -69,7 +69,7 @@ def getCommand(path, fname, suffix):
     command = config[suffix]['command']
   if type(command) is types.ListType:
     command = '|'.join(command)
-  command = re.sub(r'#{\$fileName}', fname, command.encode('UTF-8'))
+  command = re.sub(r'#{\$fileName}', fname, command)
   return command
 
 #def getRelativePath(path):
@@ -104,6 +104,7 @@ def runCommand():
   filePath = result[0]
   fileName = result[1]
   fileSuffix = result[2]
+
   # 检测命令缓存
   commandCache = vim.eval('w:commandCache')
   if not commandCache:
@@ -114,16 +115,20 @@ def runCommand():
     #print "use cache"
     command=commandCache
 
-  # 将UTF-8的编码转换为系统默认文件编码
-  if sys.platform == 'win32':
-    localeencoding = locale.getdefaultlocale()[1]
-    command = command.decode('UTF-8').encode(localeencoding or 'cp936')
+  # 处理编码问题
+  formencoding = vim.eval('&enc').lower()
+  localeencoding = locale.getdefaultlocale()[1].lower()
+  autoencod = vim.eval( 'exists("w:acmd_auto_encode") ? w:acmd_auto_encode : g:acmd_auto_encode' )
+  if formencoding != localeencoding:
+    filePath = filePath.decode(formencoding).encode(localeencoding)
+    if autoencod == 1:
+      command = command.decode(formencoding).encode(localeencoding)
 
   # 命令数组
   if command.find('|') > -1:
       command = command.split('|')
   else:
-    command = [ command ]
+    command = [command]
 
   commandName = ''
 
