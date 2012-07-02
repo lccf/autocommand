@@ -126,7 +126,7 @@ def runCommand():
 
   # 命令数组
   if command.find('|') > -1:
-      command = command.split('|')
+    command = command.split('|')
   else:
     command = [command]
 
