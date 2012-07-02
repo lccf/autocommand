@@ -20,8 +20,8 @@ let s:isDebug=0
 
 fu! autocommand#main()
   " 保存文件
-  if exists('*autocommand_before')
-    cal autocommand_before(expand('%:p'))
+  if exists('*Autocommand_before')
+    cal Autocommand_before(expand('%:p'))
   el
     sil up
   en
