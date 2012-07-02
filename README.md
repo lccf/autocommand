@@ -10,7 +10,7 @@ autocommand 是一款vim插件（依赖python），用来自动执行命令行�
   - [2.前置函数](#a2_1)
   - [3.针对文件类型](#a2_2)
   - [4.创建自定义配置文件](#a2_3)
-  - [5.高级用法](#a2_4)
+  - [5.设置命令不自动转码](#a2_4)
 
 
 <a name="a1" />
@@ -40,12 +40,12 @@ autocommand 是一款vim插件（依赖python），用来自动执行命令行�
 
 在vim配置文件中增加如下代码：
 
-	fu! autocommand_before(fullFileName)
+	fu! Autocommand_before(fullFileName)
 	  "echo a:fullFileName
 	  sil up
 	endf
 
-autocommand 允许在执行前调用一个用户自定义的函数对当前文件进行预处理，该函数名称约定为 autocommand_before 。 接受一个名为 fullFileName 的参数是当前正在编辑文件的全路径名称。 autocommand 会自动保存当前文件默认情况下你并不需要使用前置函数。
+autocommand 允许在执行前调用一个用户自定义的函数对当前文件进行预处理，该函数名称约定为 Autocommand_before 。 接受一个名为 fullFileName 的参数是当前正在编辑文件的全路径名称。 autocommand 会自动保存当前文件默认情况下你并不需要使用前置函数。
 
 <a name="a2_2" />
 ###3.针对文件类型
@@ -109,9 +109,12 @@ autocommand 允许在执行前调用一个用户自定义的函数对当前文�
 	  /* 执行命令 */
 	},
 
-以上示例摘自本人开发的项目配置。首先调用 sass 将 .sass 类型的文件转换为 css，再利用 replaceIndent 脚本将文件中的2个空格替换为4个空格（项目需要），再调用 cp 命令将文件拷贝一份至项目根录目的 public/css 目录下。
+以上示例摘自本人开发的项目配置。首先调用 sass 将 .sass 类型的文件转换为 css，再利用 replaceIndent 脚本将文件中的2个空格替换为4个空格(项目需要)，再调用 cp 命令将文件拷贝一份至项目根录目的 public/css 目录下。
 
 <a name="a2_4" />
-###5.高级用法
+###5.设置命令不自动转码
 
-待添加
+	au FileType haml,sass let w:acmd_auto_encode=0
+
+autocommand 插件使用 utf-8 编码。当 vim 默认编码和命令行编码不一致时，autocommand 会自动进行转换(在没有使用中文命名路径和文件名时不用理会此选项)。某些情况下，自动转码并不能正常工作，此时可关闭自动转码功能。例如：在 os 版本为 windows， ruby 版本为1.9x的环境下 haml/sass 被 autocommand 调用时接受的文件名编码须为 utf-8 (虽然window命令行编码默认为cp936)。这种情况下，针对 haml sass 类型的文件定义一个针对窗口的变量 w:acmd_auto_encode 的值为 0当 autocommand 检测到此选项后，就不会进行编码转换。
+
