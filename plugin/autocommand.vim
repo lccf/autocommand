@@ -265,7 +265,7 @@ fu! autocommand#getCommand(fileType)
   elsei a:fileType=="coffee"
     let ret="coffee -p #{$fileName}.coffee>#{$fileName}.js"
   elsei a:fileType=="jade"
-    let ret="jade -p #{$fileName}.jade"
+:    let ret="jade -P #{$fileName}.jade"
   else
     let ret=""
   en
