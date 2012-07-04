@@ -99,11 +99,11 @@ def runCommand():
   fullFileName = vim.eval('w:fullFileName')
   if os.name == 'nt':
     fullFileName = re.sub(r'\\', '/', fullFileName)
-  result = re.match(r'^(.*/|)([^/]+?)(\.[^.]+|)$', fullFileName)
+  result = re.match(r'^(.*/|)([^/]+?)(\.)([^.]+|)$', fullFileName)
   result = result.groups()
   filePath = result[0]
   fileName = result[1]
-  fileSuffix = result[2]
+  fileSuffix = result[3]
 
   # 检测命令缓存
   commandCache = vim.eval('w:commandCache')
