@@ -10,14 +10,14 @@
 " 需python支持
 if !has('python') | fini | en
 " 关闭插件
-if exists('g:acmd_loaded') && g:acmd_loaded == 1 | finish | en
-" 文件是否加载
-let g:autoCommandIsLoad=0
+if exists('g:acmd_loaded') && g:acmd_loaded==1 | fini | en
+" python文件是否加载
+let s:py_loaded=0
 " 脚本目录
 let s:scriptDir=expand('<sfile>:h')
 " 调试模式
-let s:isDebug=0
-
+let s:isDebug=exists('g:acmd_debug') ? g:acmd_debug : 1
+" 主函数
 fu! autocommand#main()
   " 保存文件
   if exists('*Autocommand_before')
