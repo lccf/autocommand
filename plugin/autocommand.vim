@@ -3,8 +3,8 @@
 "       Desc: 插件主文件
 "     Author: lcc
 "      Email: leftcold@gmail.com
-"    Version: 0.1
-" LastChange: 06/16/2012 20:39
+"    Version: 0.2
+" LastChange: 07/04/2012 21:39
 "    History: 
 " --------------------------------------------------
 " 需python支持
@@ -21,71 +21,253 @@ let s:isDebug=exists('g:acmd_debug') ? g:acmd_debug : 1
 fu! autocommand#main()
   " 保存文件
   if exists('*Autocommand_before')
-    cal Autocommand_before(expand('%:p'))
-  el
-    sil up
+    if Autocommand_before(expand('%:p'))==0 | retu 0 | en
   en
-  " 如果文件未加载则加载
-  if s:isDebug == 1
-    cal autocommand#load()
-    let w:fullFileName = expand('%:p')
-    let w:commandCache = ''
-  el
-    if !g:autoCommandIsLoad | cal autocommand#load() | en
-    " 保存缓冲区文件名
-    if !exists('w:fullFileName') | let w:fullFileName = expand('%:p') | en
-    " 保存命令
-    if !exists('w:commandCache') | let w:commandCache = '' | en
-  en
+  sil up
+  " 调试状态重新加载文件，不使用缓存
+  if s:isDebug==1 | cal autocommand#flush() | en
   " 执行命令
   py runCommand()
 endf
 
 " 加载autoCommand.py
-fu! autocommand#load()
-  "echo "pyfile ".s:scriptDir."/autocommand/autocommand.py"
-  exe "pyfile ".s:scriptDir."/autocommand/autocommand.py"
-  let g:autoCommandIsLoad=1
+fu! autocommand#loadpy()
+  let s:py_loaded=1
+  if s:isDebug==1
+    exe "pyfile ".s:scriptDir."/autocommand.py"
+  el
+python << EOF
+# -*- coding:utf-8 -*-
+# --------------------------------------------------
+#   FileName: autocommand.py
+#       Desc: 插件python部份
+#     Author: lcc
+#      Email: leftcold@gmail.com
+#    Version: 0.2
+# LastChange: 07/04/2012 21:39
+#    History: 
+# --------------------------------------------------
+import os, re, sys, vim, json, time, types, locale, subprocess
+
+cFileName = '_config'
+
+def createConfigFile():
+  # 初始化配置
+  config = '''{
+  ".haml": {
+    "command": "haml -nq #{$fileName}.haml #{$fileName}.html"
+    /* 执行命令 */
+  },
+  ".sass": {
+    "command": "sass #{$fileName}.sass #{$fileName}.css"
+    /* 执行命令 */
+  },
+  ".less": {
+    "command": "lessc #{$fileName}.less>#{$fileName}.css"
+    /* 执行命令 */
+  },
+  ".coffee": {
+    "command": "coffee -bp #{$fileName}.coffee>#{$fileName}.js"
+    /* 执行命令 */
+  }
+}'''
+  # 写入配置
+  fp = open(cFileName, 'w')
+  fp.write(config)
+  # 关闭文件
+  fp.close()
+  del fp
+
+  return True;
+
+def readConfig(cPath):
+  if os.path.isfile(cPath+'/'+cFileName):
+    # 读取配置
+    fp = open(cPath+'/'+cFileName)
+    config = fp.read()
+    fp.close()
+    del fp
+    # 去除注释
+    rex = re.compile(r'^(?:\s+|)/\*.*?\*/(?:\s+|)$', re.M+re.S)
+    config = rex.sub('', config)
+    # 序列化Json
+    config = json.loads(config)
+  else:
+    config = False
+
+  return config
+
+def getCommand(path, fname, suffix):
+  config = readConfig(path)
+  #如果读取配失败则返回False
+  if not config:
+    #如果未从配置文件取到命令则从vim中读取命令
+    command = vim.eval('autocommand#getCommand("'+suffix+'")')
+  else:
+    #读取配置成功
+    command = config[suffix]['command']
+  if type(command) is types.ListType:
+    command = '|'.join(command)
+  command = re.sub(r'#{\$fileName}', fname, command)
+  return command
+
+#def getRelativePath(path):
+  #relative = ''
+  #prefix = ''
+  #result = False
+  #temp = ''
+
+  #for i in range(0, 3):
+    #if os.path.isdir(path):
+      #if os.path.isfile(path + '/' + cFileName):
+        #result = (path, relative)
+        #break
+
+      #else:
+        #temp = os.path.split(path)
+        #path = temp[0]
+        #relative = temp[1]+'/'+relative
+
+    #else:
+      #break
+
+  #return result
+
+def runCommand():
+  # 获取文件相关信息
+  fullFileName = vim.eval('w:fullFileName')
+  if os.name == 'nt':
+    fullFileName = re.sub(r'\\', '/', fullFileName)
+  result = re.match(r'^(.*/|)([^/]+?)(\.)([^.]+|)$', fullFileName)
+  result = result.groups()
+  filePath = result[0]
+  fileName = result[1]
+  fileSuffix = result[3]
+
+  # 检测命令缓存
+  commandCache = vim.eval('w:commandCache')
+  if not commandCache:
+    command=getCommand(filePath, fileName, fileSuffix)
+    #print 'let w:commandCache='+command
+    vim.command('let w:commandCache="'+command+'"')
+  else:
+    #print "use cache"
+    command=commandCache
+
+  # 处理编码问题
+  formencoding = vim.eval('&enc').lower()
+  localeencoding = locale.getdefaultlocale()[1].lower()
+  autoencod = vim.eval( 'exists("w:acmd_auto_encode") ? w:acmd_auto_encode : g:acmd_auto_encode' )
+  if formencoding != localeencoding:
+    filePath = filePath.decode(formencoding).encode(localeencoding)
+    if autoencod == 1:
+      command = command.decode(formencoding).encode(localeencoding)
+
+  # 命令数组
+  if command.find('|') > -1:
+    command = command.split('|')
+  else:
+    command = [command]
+
+  commandName = ''
+
+  # 改变路径
+  if filePath != '':
+    tempPath = os.getcwd();
+    os.chdir(filePath);
+
+  for i in range(0, len(command)):
+    # 获取执行命令的名称
+    if not commandName:
+      commandName = re.match(r'(^[^|> ]+)', command[i])
+      if commandName:
+        commandName = ' '+commandName.group()
+      else:
+        commandName = ' command'
+    # 执行命令
+    ret = subprocess.Popen(command[i], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    errMsg = ret.stderr.read()
+    if errMsg != '': break
+
+  # 返回初始目录
+  if filePath != '':
+    os.chdir(tempPath)
+  # 打印错误信息
+  if errMsg:
+    #转义换行符
+    errMsg = re.sub(r'\r(?:\n|)', r'\n', errMsg)
+    #转义斜杠
+    errMsg = re.sub(r'\\', r'\\\\', errMsg)
+    #转义引号
+    errMsg = re.sub(r'\"', r'\\"', errMsg)
+    #打印错误命令
+    vim.command('echohl ErrorMsg | echo "'+errMsg+'" | echohl None')
+  #打印执行结果
+  else:
+    #打印执行成功命令
+    print time.strftime('%H:%M:%S')+' execute'+commandName
+
+#if __name__ == '__main__':
+  #print 'autoCommand.py is load'
+# vim:sw=2:ts=2:sts=2:et:fdm=marker:fdc=1
+
+EOF
+  en
+endf
+
+" 初始化窗口
+fu! autocommand#initWindow()
+  if !s:py_loaded | cal autocommand#loadpy() | en
+  let w:fullFileName=expand('%:p')
+  let w:commandCache=''
 endf
 
 " 重置缓存
 fu! autocommand#flush()
-  call autocommand#load()
-  if exists('w:fullFileName') | unlet w:fullFileName | en
-  if exists('w:commandCache') | unlet w:commandCache | en
+  cal autocommand#loadpy()
+  cal autocommand#initWindow()
 endf
 
 " 绑定事件
 fu! autocommand#bind()
-  exe 'no <silent> <buffer> '.s:callKey.' :call autocommand#main()<CR>'
-  exe 'vno <silent> <buffer> '.s:callKey.' :call autocommand#main()<CR>'
-  exe 'ino <silent> <buffer> '.s:callKey.' <C-o>:call autocommand#main()<CR>'
+  exe 'no <silent> <buffer> '.s:callKey.' :cal autocommand#main()<CR>'
+  exe 'vno <silent> <buffer> '.s:callKey.' :cal autocommand#main()<CR>'
+  exe 'ino <silent> <buffer> '.s:callKey.' <C-o>:cal autocommand#main()<CR>'
 endf
 
 " 初始化配置文件
 fu! autocommand#init()
   " 如果文件未加载则加载
-  if !g:autoCommandIsLoad | call autocommand#load() | en
-  let s:cwd = getcwd()
+  if !g:autoCommandIsLoad | cal autocommand#load() | en
+  let s:cwd=getcwd()
   let s:dir=input("create config ".s:cwd."(yN):")
-  if s:dir == 'y'
+  if s:dir=='y'
     py createConfigFile()
-    echo "success"
-  else
-    echo "abort"
+    ec "success"
+  el
+    ec "abort"
   en
 endf
 
 " 默认命令
-fu! autocommand#getCommand(type)
-  if a:type==".haml"
+fu! autocommand#getCommand(fileType)
+  " 获取用户自定义命令
+  if exists('*Autocommand_usercmd')
+    let l:ret=Autocommand_usercmd(a:fileType)
+    if l:ret!="" | retu l:ret | en
+  en
+  if a:fileType=="haml"
     let ret="haml -nq #{$fileName}.haml #{$fileName}.html"
-  elsei a:type==".sass"
+  elsei a:fileType=="sass"
     let ret="sass #{$fileName}.sass #{$fileName}.css"
-  elsei a:type==".less"
+  elsei a:fileType=="less"
     let ret="lessc #{$fileName}.less>#{$fileName}.css"
-  elsei a:type==".coffee"
+  elsei a:fileType=="coffee"
     let ret="coffee -p #{$fileName}.coffee>#{$fileName}.js"
+  elsei a:fileType=="jade"
+    let ret="jade -p #{$fileName}.jade"
+  else
+    let ret=""
   en
   retu l:ret
 endf
@@ -95,18 +277,15 @@ let s:callKey=exists('g:acmd_call_key') ? g:acmd_call_key : ''
 " 配置文件类型
 let s:fileTypeList=exists('g:acmd_filetype_list') ?  g:acmd_filetype_list : ['haml', 'sass', 'less', 'coffee']
 " 设置自动绑定事件
-if s:callKey!=''
-  for s:item in s:fileTypeList
-    exe 'au FileType '.s:item.' call autocommand#bind()'
-  endfo
+if s:callKey!=""
+  exe 'au FileType '.join(s:fileTypeList, ',').' cal autocommand#bind()'
+  exe 'au BufNewFile,BufRead *.'.join(s:fileTypeList, ',*.').' cal autocommand#initWindow()'
 en
+
 " 绑定命令
-let s:cmdName=exists('g:acmd_cmd') ? g:acmd_cmd : 'Acmd'
-if s:cmdName!=''
-  exe 'com! -nargs=0 '.s:cmdName.' call autocommand#main()'
-en
+com! -nargs=0 Acmd cal autocommand#main()
+com! -nargs=0 AcmdInitConfig cal autocommand#init()
+
 " 设置默认自动转码
-if !exists( 'g:acmd_auto_encode' )
-  let g:acmd_auto_encode=1
-en
+if !exists('g:acmd_auto_encode') | let g:acmd_auto_encode=1 | en
 " vim:sw=2:ts=2:sts=2:et:fdm=marker:fdc=1

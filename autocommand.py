@@ -4,8 +4,8 @@
 #       Desc: 插件python部份
 #     Author: lcc
 #      Email: leftcold@gmail.com
-#    Version: 0.1
-# LastChange: 06/01/2012 01:21
+#    Version: 0.2
+# LastChange: 07/04/2012 21:39
 #    History: 
 # --------------------------------------------------
 import os, re, sys, vim, json, time, types, locale, subprocess
