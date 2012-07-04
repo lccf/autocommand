@@ -15,19 +15,19 @@ cFileName = '_config'
 def createConfigFile():
   # 初始化配置
   config = '''{
-  ".haml": {
+  "haml": {
     "command": "haml -nq #{$fileName}.haml #{$fileName}.html"
     /* 执行命令 */
   },
-  ".sass": {
+  "sass": {
     "command": "sass #{$fileName}.sass #{$fileName}.css"
     /* 执行命令 */
   },
-  ".less": {
+  "less": {
     "command": "lessc #{$fileName}.less>#{$fileName}.css"
     /* 执行命令 */
   },
-  ".coffee": {
+  "coffee": {
     "command": "coffee -bp #{$fileName}.coffee>#{$fileName}.js"
     /* 执行命令 */
   }
