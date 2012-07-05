@@ -16,7 +16,7 @@ let s:py_loaded=0
 " 脚本目录
 let s:scriptDir=expand('<sfile>:h')
 " 调试模式
-let s:isDebug=exists('g:acmd_debug') ? g:acmd_debug : 1
+let s:isDebug=exists('g:acmd_debug') ? g:acmd_debug : 0
 " 主函数
 fu! autocommand#main()
   " 保存文件
