@@ -34,6 +34,7 @@ autocommand 是一款vim插件（依赖python），用来执行自动命令。�
 
 <a name="a2_0" />
 ###1.设置调用快捷键
+*autocommand 没有默认快捷键，你必须指定快捷键。
 
 在vim配置文件中增加如下配置项：
 
@@ -110,7 +111,7 @@ autocommand 是一款vim插件（依赖python），用来执行自动命令。�
 
 	:AcmdInitConfig
 
-会自动在当前vim当前目录下创建 _config 的配置文件，配置文件使用json描述，默认文件内容如下：
+会在当前 vim 当前目录下创建名为 _config 的配置文件，配置文件使用json描述，默认文件内容如下：
 
 	{
 	  "haml": {
@@ -153,7 +154,7 @@ autocommand 是一款vim插件（依赖python），用来执行自动命令。�
 
 	au FileType haml,sass let w:acmd_auto_encode=0
 
-autocommand 插件从 vim 获取文件信息，调用系统命令行去处理。当 vim 默认编码和命令行编码不一致时，autocommand 会自动进行转换（处理文件名及路径中的汉字）。某些情况下，自动转码并不能达到预期的效果，此时可关闭自动转码功能。例如：在 os 版本为 windows，ruby 版本为1.9x的环境下 haml、sass 被 autocommand 调用时接受的传入的参数编码须为 vim 内部编码（虽然 window 命令行编码默认为cp936）。这种情况下，针对 haml、sass 类型的文件定义一个针对窗口的变量 w:acmd_auto_encode。当变量的值为 0时，autocommand 不会对命令进行编码转换。
+autocommand 插件从 vim 获取文件信息，调用系统命令行去处理。当 vim 默认编码和命令行编码不一致时，autocommand 会自动进行转换（处理文件名和路径中的中文字符）。某些情况下，自动转换并不能达到预期的效果，此时可关闭自动转换功能。例如：在 os 版本为 windows，ruby 版本为1.9x的环境下 haml、sass 被 autocommand 调用时传入的参数编码须为 vim 内部编码（虽然 window 命令行编码默认为cp936）。这种情况下，针对 haml、sass 类型的文件定义一个针对窗口的变量 w:acmd_auto_encode。当变量的值为 0 时 autocommand 不会对命令进行编码转换。
 
 <a name="a3" />
 ##高级内容
