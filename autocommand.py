@@ -118,10 +118,10 @@ def runCommand():
   # 处理编码问题
   formencoding = vim.eval('&enc').lower()
   localeencoding = locale.getdefaultlocale()[1].lower()
-  autoencod = vim.eval( 'exists("w:acmd_auto_encode") ? w:acmd_auto_encode : g:acmd_auto_encode' )
+  autoencode = vim.eval( 'exists("w:acmd_auto_encode") ? w:acmd_auto_encode : g:acmd_auto_encode' )
   if formencoding != localeencoding:
     filePath = filePath.decode(formencoding).encode(localeencoding)
-    if autoencod == 1:
+    if autoencode == '1':
       command = command.decode(formencoding).encode(localeencoding)
 
   # 命令数组
