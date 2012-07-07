@@ -27,5 +27,7 @@ fu! Autocommand_usercmd(fileType)
 	en
 	retu l:ret
 endf
+" 修正win平台ruby1.9x下自动编码出错
+"au FileType haml,sass let w:acmd_auto_encode=0
 
 " vim:sw=4:ts=4:sts=4:noet:fdm=marker:fdc=1
