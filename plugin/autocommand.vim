@@ -4,7 +4,7 @@
 "     Author: lcc
 "      Email: leftcold@gmail.com
 "    Version: 0.2
-" LastChange: 07/04/2012 21:39
+" LastChange: 07/07/2012 17:23
 "    History: 
 " --------------------------------------------------
 " 需python支持
@@ -238,9 +238,10 @@ endf
 " 初始化配置文件
 fu! autocommand#init()
   " 如果文件未加载则加载
-  if !g:autoCommandIsLoad | cal autocommand#load() | en
+  cal autocommand#initWindow()
   let s:cwd=getcwd()
   let s:dir=input("create config ".s:cwd."(yN):")
+  redraw
   if s:dir=='y'
     py createConfigFile()
     ec "success"
