@@ -5,7 +5,6 @@
 #     Author: lcc
 #      Email: leftcold@gmail.com
 #    Version: $version$
-#  buildTime: $buildTime$
 # LastChange: $lastChange$
 # --------------------------------------------------
 import os, re, sys, vim, json, time, types, locale, subprocess
@@ -71,28 +70,6 @@ def getCommand(path, fname, suffix):
     command = '|'.join(command)
   command = re.sub(r'#{\$fileName}', fname, command)
   return command
-
-#def getRelativePath(path):
-  #relative = ''
-  #prefix = ''
-  #result = False
-  #temp = ''
-
-  #for i in range(0, 3):
-    #if os.path.isdir(path):
-      #if os.path.isfile(path + '/' + cFileName):
-        #result = (path, relative)
-        #break
-
-      #else:
-        #temp = os.path.split(path)
-        #path = temp[0]
-        #relative = temp[1]+'/'+relative
-
-    #else:
-      #break
-
-  #return result
 
 def runCommand():
   # 获取文件相关信息
@@ -167,7 +144,5 @@ def runCommand():
   else:
     #打印执行成功命令
     print time.strftime('%H:%M:%S')+' execute'+commandName
-
-#if __name__ == '__main__':
-  #print 'autoCommand.py is load'
+# build time $buildTime$
 # vim:sw=2:ts=2:sts=2:et:fdm=marker:fdc=1

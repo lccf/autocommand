@@ -4,7 +4,6 @@
 "     Author: lcc
 "      Email: leftcold@gmail.com
 "    Version: $version$
-"  buildTime: $buildTime$
 " LastChange: $lastChange$
 " --------------------------------------------------
 " 需python支持
@@ -116,4 +115,6 @@ com! -nargs=0 AcmdInitConfig cal autocommand#init()
 
 " 设置默认自动转码
 if !exists('g:acmd_auto_encode') | let g:acmd_auto_encode=1 | en
+
+" build time $buildTime$
 " vim:sw=2:ts=2:sts=2:et:fdm=marker:fdc=1
