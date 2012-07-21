@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<project name="aotucommand.build" default="build" basedir=".">
+    <!--attribute-->
+    <property name="version" value="0.2"/>
+    <property name="lastChange" value="07/21/2012 13:59"/>
+    <loadfile encoding="utf-8" property="src.autocommand.py" srcfile="src/autocommand.py"/>
+    <!--build time-->
+    <tstamp>
+        <format property="buildTime" pattern="MM/dd/yyyy HH:mm" />
+    </tstamp>
+    <!--targets-->
+    <target name="build" description="build plugin" depends="clean,createDir,copyFile,replace">
+        <echo message="build sucess" />
+    </target>
+    <!--create dir-->
+    <target name="createDir">
+        <mkdir dir="plugin"/>
+        <echo file="plugin/.gitignore" append="false" message="ant fixcrlf fixlast"/>
+    </target>
+    <!--copy file-->
+    <target name="copyFile">
+        <copy file="src/autocommand.vim" tofile="plugin/autocommand.vim" overwrite="true" />
+    </target>
+    <!--replace-->
+    <target name="replace">
+        <replace encoding="utf-8" file="plugin/autocommand.vim" token="#$file:autocommand.py$" value="${src.autocommand.py}"/>
+        <fixcrlf encoding="utf-8" file="plugin/autocommand.vim" eol="lf" />
+        <replace encoding="utf-8" file="plugin/autocommand.vim" token="$version$" value="${version}"/>
+        <replace encoding="utf-8" file="plugin/autocommand.vim" token="$buildTime$" value="${buildTime}"/>
+        <replace encoding="utf-8" file="plugin/autocommand.vim" token="$lastChange$" value="${lastChange}"/>
+    </target>
+    <!--clean-->
+    <target name="clean" description="clean">
+        <delete dir="plugin"/>
+    </target>
+
+</project>
+<!-- vim:ft=ant:ts=4:sts=4:sw=4:et -->
