@@ -4,7 +4,7 @@
 "     Author: lcc
 "      Email: leftcold@gmail.com
 "    Version: 0.2
-" LastChange: 07/07/2012 17:23
+" LastChange: 08/01/2012 12:04
 "    History: 
 " --------------------------------------------------
 " 需python支持
@@ -26,6 +26,8 @@ fu! autocommand#main()
   sil up
   " 调试状态重新加载文件，不使用缓存
   if s:isDebug==1 | cal autocommand#flush() | en
+  " 判断窗口变量
+  if !exists('w:fullFileName') | cal autocommand#initWindow() | en
   " 执行命令
   py runCommand()
 endf
@@ -44,7 +46,7 @@ python << EOF
 #     Author: lcc
 #      Email: leftcold@gmail.com
 #    Version: 0.2
-# LastChange: 07/04/2012 21:39
+# LastChange: 08/01/2012 12:04
 #    History: 
 # --------------------------------------------------
 import os, re, sys, vim, json, time, types, locale, subprocess
@@ -280,7 +282,7 @@ let s:fileTypeList=exists('g:acmd_filetype_list') ?  g:acmd_filetype_list : ['ha
 " 设置自动绑定事件
 if s:callKey!=""
   exe 'au FileType '.join(s:fileTypeList, ',').' cal autocommand#bind()'
-  exe 'au BufNewFile,BufRead *.'.join(s:fileTypeList, ',*.').' cal autocommand#initWindow()'
+  exe 'au BufWinEnter *.'.join(s:fileTypeList, ',*.').' cal autocommand#initWindow()'
 en
 
 " 绑定命令
