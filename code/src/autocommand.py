@@ -40,8 +40,44 @@ def createConfigFile():
 
   return True;
 
-def readConfig(cPath):
-  if os.path.isfile(cPath+'/'+cFileName):
+#拦截对vim对象的直接访问，方便后期测试代码时模拟接口
+def vimInterface(command, param):
+  if command=='eval':
+    return vim.eval(param)
+  elif command=='command':
+    return vim.command(param)
+
+def getConfig(cPath):
+  #相对路径
+  aPath = ''
+  #绝对路径
+  rPath = ''
+  #是否读取到配置文件
+  isConfig = False
+
+  temp = os.path.split(cPath);
+  if not temp[1]:
+    path = temp[0]
+  else:
+    path = cPath
+
+  for i in range(0, 3):
+    if os.path.isdir(path):
+      if os.path.isfile(path + '/' + cFileName):
+        isConfig = True
+        cPath = path
+        break
+      else:
+        temp = os.path.split(path)
+        path = temp[0]
+
+        if temp[1] != '':
+          aPath = temp[1]+'/'+aPath
+          rPath += '../'
+    else:
+      break
+
+  if isConfig:
     # 读取配置
     fp = open(cPath+'/'+cFileName)
     config = fp.read()
@@ -50,86 +86,178 @@ def readConfig(cPath):
     # 去除注释
     rex = re.compile(r'^(?:\s+|)/\*.*?\*/(?:\s+|)$', re.M+re.S)
     config = rex.sub('', config)
+    #config = re.sub(r'\\', r'\\\\', config)
     # 序列化Json
     config = json.loads(config)
+
+    result = [config, cPath, aPath, rPath]
   else:
-    config = False
+    result = False
 
-  return config
+  return result
 
-def getCommand(path, fname, suffix):
-  config = readConfig(path)
-  #如果读取配失败则返回False
-  if not config:
-    #如果未从配置文件取到命令则从vim中读取命令
-    command = vim.eval('autocommand#getCommand("'+suffix+'")')
-  else:
-    #读取配置成功
-    command = config[suffix]['command']
-  if type(command) is types.ListType:
-    command = '|'.join(command)
-  command = re.sub(r'#{\$fileName}', fname, command)
-  return command
-
-def runCommand():
+def getData():
   # 获取文件相关信息
-  fullFileName = vim.eval('w:fullFileName')
+  fullFileName = vimInterface('eval', 'w:fullFileName')
   if os.name == 'nt':
     fullFileName = re.sub(r'\\', '/', fullFileName)
-  result = re.match(r'^(.*/|)([^/]+?)(\.)([^.]+|)$', fullFileName)
-  result = result.groups()
-  filePath = result[0]
-  fileName = result[1]
-  fileSuffix = result[3]
 
-  # 检测命令缓存
-  commandCache = vim.eval('w:commandCache')
-  if not commandCache:
-    command=getCommand(filePath, fileName, fileSuffix)
-    #print 'let w:commandCache='+command
-    vim.command('let w:commandCache="'+command+'"')
-  else:
-    #print "use cache"
-    command=commandCache
+  tmpData = re.match(r'^(.*?|)([^/]+?)(\.)([^.]+|)$', fullFileName)
+  tmpData = tmpData.groups()
+
+  filePath = tmpData[0]
+  fileName = tmpData[1]
+  fileSuffix = tmpData[3]
 
   # 处理编码问题
-  formencoding = vim.eval('&enc').lower()
+  formencoding = vimInterface('eval', '&enc').lower()
   localeencoding = locale.getdefaultlocale()[1].lower()
-  autoencode = vim.eval( 'exists("w:acmd_auto_encode") ? w:acmd_auto_encode : g:acmd_auto_encode' )
+  autoencode = vimInterface('eval', 'exists("w:acmd_auto_encode") ? w:acmd_auto_encode : g:acmd_auto_encode')
   if formencoding != localeencoding:
     filePath = filePath.decode(formencoding).encode(localeencoding)
     if autoencode == '1':
-      command = command.decode(formencoding).encode(localeencoding)
+      fileName = fileName.decode(formencoding).encode(localeencoding)
 
-  # 命令数组
-  if command.find('|') > -1:
-    command = command.split('|')
-  else:
-    command = [command]
+  result = [fullFileName, filePath, fileName, fileSuffix]
 
-  commandName = ''
+  return result
 
-  # 改变路径
-  if filePath != '':
-    tempPath = os.getcwd();
-    os.chdir(filePath);
+#获取缓存
+def getCache():
+  command=''
+  commandPath=''
+  commandCache=vimInterface('eval', 'w:commandCache')
+
+  if commandCache:
+    command = re.split(r'(?<!\\)\|', commandCache)
+    for i in range(0, len(command)):
+      if command[i].find('|')>-1:
+        command[i] = re.sub(r'\\\|', r'\|', command[i])
+
+    if command[0].find('@')==0:
+      commandPath = commandPath[0].lstrip('@')
+      del command[0]
+
+  return [commandPath, command]
+
+# 设置缓存
+def setCache(commandPath, command):
+  tmpCommand = ''
+  if commandPath:
+    tmpCommand = '@'+re.sub(r'\|', r'\\\|', commandPath)
 
   for i in range(0, len(command)):
-    # 获取执行命令的名称
-    if not commandName:
-      commandName = re.match(r'(^[^|> ]+)', command[i])
-      if commandName:
-        commandName = ' '+commandName.group()
+    tmpCommand += re.sub(r'\|', r'\\\|', command[i])
+
+  vimInterface('command', 'let w:commandCache="'+tmpCommand+'"')
+
+  return True
+
+#获取命令
+def getCommand():
+  commandName = ''
+  command, commandPath = getCache()
+
+  if not command:
+    fullFileName, filePath, fileName, fileSuffix = getData()
+    config, cmdPath, aPath, rPath = getConfig(filePath)
+
+    #如果读取配失败则返回False
+    if not config:
+      #如果未从配置文件取到命令则从vim中读取命令
+      command = vimInterface('eval', 'autocommand#getCommand("'+fileSuffix+'")')
+      # 命令数组
+      if command.find('|') > -1:
+        # 以|拆分
+        command = re.split(r'(?<!\\)\|', command)
+        for i in range(0, len(command)):
+          if command[i].find('|')>-1:
+            command[i] = re.sub(r'\\\|', r'\|', command[i])
+
+      if command[0].find('$') == 0:
+        commandPath = command[0].lstrip('$')
+        del command[0]
       else:
-        commandName = ' command'
+        commandPath = cmdPath
+
+    else:
+      if aPath:
+        if config.has_key(aPath):
+          #是否存在路径
+          if config[aPath].has_key(fileSuffix):
+            command = config[aPath][fileSuffix]['command']
+
+          if config[aPath][fileSuffix].has_key('_path'):
+            commandPath = config[aPath][fileSuffix]['_path']
+
+          elif config[aPath].has_key('_path'):
+            commandPath = config[aPath]['_path']
+
+      #如果未找到对应命令
+      if not command:
+        if config.has_key(fileSuffix):
+          command = config[fileSuffix]['command']
+
+      #如果未找到指定路径
+      if not commandPath:
+        if config[fileSuffix].has_key('_path'):
+          commandPath = config[fileSuffix]['_path']
+        elif config.has_key('_path'):
+          commandPath = config['_path']
+      #换算相对路径
+      if commandPath:
+        if commandPath[0] == '~':
+          if commandPath > 1:
+            commandPath = os.path.normpath(cmdPath+commandPath.lstrip('~'))
+          elif len(commandPath) == 1:
+            commandPath = cmdPath
+        else:
+          commandPath = join.path.normpath(filePath+cmdPath)
+      else:
+        commandPath = filePath
+
+      if type(command) != types.ListType:
+        command = [command]
+
+      for i in range(0, len(command)):
+        command[i] = re.sub(r'#{\$fileName}', fileName, command[i])
+        if aPath:
+          command[i] = re.sub(r'#{\$aPath}', aPath, command[i])
+          command[i] = re.sub(r'#{\$rPath}', rPath, command[i])
+
+    setCache(commandPath, command)
+
+  # 获取执行命令的名称
+  commandName = re.match(r'(^[^|> ]+)', command[0])
+  if commandName:
+    commandName = ' '+commandName.group()
+  else:
+    commandName = ' command'
+
+  return [commandPath, commandName, command]
+
+def runCommand():
+  commandPath, commandName, command = getCommand()
+
+  # 改变路径
+  if commandPath != '':
+    tempPath = os.getcwd();
+    os.chdir(commandPath);
+
+  errMsg = ''
+
+  print commandPath
+  for i in range(0, len(command)):
     # 执行命令
+    #print command[i]
     ret = subprocess.Popen(command[i], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     errMsg = ret.stderr.read()
     if errMsg != '': break
 
   # 返回初始目录
-  if filePath != '':
+  if commandPath != '':
     os.chdir(tempPath)
+
   # 打印错误信息
   if errMsg:
     #转义换行符
@@ -139,10 +267,11 @@ def runCommand():
     #转义引号
     errMsg = re.sub(r'\"', r'\\"', errMsg)
     #打印错误命令
-    vim.command('echohl ErrorMsg | echo "'+errMsg+'" | echohl None')
+    vimInterface('command', 'echohl ErrorMsg | echo "'+errMsg+'" | echohl None')
   #打印执行结果
   else:
     #打印执行成功命令
     print time.strftime('%H:%M:%S')+' execute'+commandName
+
 # build time $buildTime$
 # vim:sw=2:ts=2:sts=2:et:fdm=marker:fdc=1
