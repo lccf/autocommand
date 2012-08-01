@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <project name="aotucommand.build" default="build" basedir=".">
     <!--attribute-->
-    <property name="version" value="0.2"/>
-    <property name="lastChange" value="07/21/2012 13:59"/>
+    <property name="version" value="0.3(beta)"/>
+    <property name="lastChange" value="07/21/2012 19:10"/>
     <loadfile encoding="utf-8" property="src.autocommand.py" srcfile="src/autocommand.py"/>
     <!--build time-->
     <tstamp>
@@ -15,7 +15,6 @@
     <!--create dir-->
     <target name="createDir">
         <mkdir dir="plugin"/>
-        <echo file="plugin/.gitignore" append="false" message="ant fixcrlf fixlast"/>
     </target>
     <!--copy file-->
     <target name="copyFile">
@@ -35,4 +34,5 @@
     </target>
 
 </project>
-<!-- vim:ft=ant:ts=4:sts=4:sw=4:et -->
+<!-- vim:ft=ant:ts=4:sts=4:sw=4:et
+     -->
