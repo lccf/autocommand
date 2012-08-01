@@ -25,6 +25,8 @@ fu! autocommand#main()
   sil up
   " 调试状态重新加载文件，不使用缓存
   if s:isDebug==1 | cal autocommand#flush() | en
+  " 判断窗口变量
+  if !exists('w:fullFileName') | cal autocommand#initWindow() | en
   " 执行命令
   py runCommand()
 endf
@@ -106,7 +108,7 @@ let s:fileTypeList=exists('g:acmd_filetype_list') ?  g:acmd_filetype_list : ['ha
 " 设置自动绑定事件
 if s:callKey!=""
   exe 'au FileType '.join(s:fileTypeList, ',').' cal autocommand#bind()'
-  exe 'au BufNewFile,BufRead *.'.join(s:fileTypeList, ',*.').' cal autocommand#initWindow()'
+  exe 'au BufWinEnter *.'.join(s:fileTypeList, ',*.').' cal autocommand#initWindow()'
 en
 
 " 绑定命令
