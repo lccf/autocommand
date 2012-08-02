@@ -12,8 +12,9 @@ import os, re, sys, vim, json, time, types, locale, subprocess
 cFileName = '_config'
 
 def createConfigFile():
+  global configContent
   # 初始化配置
-  config = '''{
+  configContent = '''{
   "haml": {
     "command": "haml -nq #{$fileName}.haml #{$fileName}.html"
     /* 执行命令 */
@@ -33,7 +34,7 @@ def createConfigFile():
 }'''
   # 写入配置
   fp = open(cFileName, 'w')
-  fp.write(config)
+  fp.write(configContent)
   # 关闭文件
   fp.close()
   del fp
