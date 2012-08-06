@@ -6,13 +6,14 @@
 #     Author: lcc
 #      Email: leftcold@gmail.com
 #    Version: 0.3(beta)
-# LastChange: 08/01/2012 23:12
+# LastChange: 08/07/2012 01:22
 # --------------------------------------------------
-import os, sys, re, json, shutil
+import os, sys, re, json, locale, shutil
 
+# autocommand模块变量
 acmd = False
 
-# 测试创建配置文件
+# testCreateConfigFile 测试创建配置文件 {{{
 def testCreateConfigFile():
   print '\n[test] createConfigFile'
 
@@ -46,15 +47,17 @@ def testCreateConfigFile():
   except:
     print '  remove:failure'
     sys.exit()
+# }}}
 
-# 测试vim接口
+# testVimInterface 测试vim接口 {{{
 def testVimInterface():
   print '\n[test] vimInterface'
   #print '[test]vimInterface eval:'+acmd.vimInterface('eval', 'test eval')
   print '  eval:'+acmd.vimInterface('eval', 'test eval')
   print '  command:'+acmd.vimInterface('command', 'test command')
+# }}}
 
-# 测试获取配置文件
+# testGetConfig 测试获取配置文件 {{{
 def testGetConfig():
   print '\n[test] getConfig'
   #暂存目录
@@ -81,9 +84,9 @@ def testGetConfig():
   resultLv1 = [json.loads(jsons), dirLv1, '', '']
   #比较值输出结果
   if getResultLv1 == resultLv1:
-    print '  current dir config:equal'
+    print '  test case 1:success'
   else:
-    print '  current dir config:differ'
+    print '  test case 1:failure'
     print '  [resultLv1]:'
     print '  '+str(resultLv1)
     print '  [getResultLv1]'
@@ -106,9 +109,9 @@ def testGetConfig():
   resultLv2 = [resultLv1[0], dirLv1, 'testGetConfigLv2/', '../']
   #比较值输出结果
   if getResultLv2 == resultLv2:
-    print '  lv2 dir config:equal'
+    print '  test case 2:success'
   else:
-    print '  lv2 dir config:differ'
+    print '  test case 2:failure'
     print '  [resultLv2]:'
     print '  '+str(resultLv2)
     print '  [getResultLv2]'
@@ -131,9 +134,9 @@ def testGetConfig():
   resultLv3 = [resultLv1[0], dirLv1, 'testGetConfigLv2/testGetConfigLv3/', '../../']
   #比较值输出结果
   if getResultLv3 == resultLv3:
-    print '  lv3 dir config:equal'
+    print '  test case 3:success'
   else:
-    print '  lv3 dir config:differ'
+    print '  test case 3:failure'
     print '  [resultLv3]:'
     print '  '+str(resultLv3)
     print '  [getResultLv3]'
@@ -143,7 +146,67 @@ def testGetConfig():
   os.chdir(currDir)
   if os.path.isdir('./testGetConfig'):
     shutil.rmtree(dirLv1)
+# }}}
 
+# testGetData 测试获取数据 {{{
+def testGetData():
+  print '\n[test] getData'
+  pathName1 = './testGetData'
+  pathName2 = './测试数据获取'
+  fileName1 = 'readme.haml'
+  fileName2 = '说明.haml'
+
+  # test case 1
+  acmd.vim.vimFullFileName = os.path.realpath(pathName1 +'/'+ fileName1)
+  getTc1Result = acmd.getData()
+  tc1Result = [re.sub(r'\\', '/', os.path.realpath(pathName1 +'/'+ fileName1)), re.sub(r'\\', '/', os.path.realpath(pathName1))+'/', 'readme', 'haml']
+
+  if getTc1Result == tc1Result:
+    print '  test case 1:success'
+  else:
+    print '  test case 1:failure'
+    print '  [getTc1Result]'
+    print '  '+str(getTc1Result)
+    print '  [tc1Result]'
+    print '  '+str(tc1Result)
+
+  # test case 2
+  acmd.vim.vimFullFileName = os.path.realpath(pathName2 +'/'+ fileName2)
+  getTc2Result = acmd.getData()
+  codepage = locale.getdefaultlocale()[1].lower()
+  tmp1 = re.sub( r'\\', '/', os.path.realpath(pathName2+'/'+fileName2))
+  tmp2 = re.sub( r'\\', '/', os.path.realpath(pathName2).decode('utf-8').encode(codepage)+'/')
+  tc2Result = [ tmp1, tmp2, re.sub( r'\.[^.]*$', '', fileName2).decode('utf-8').encode(codepage), 'haml' ]
+
+  if getTc2Result == tc2Result:
+    print '  test case 2:success'
+  else:
+    print '  test case 2:failure'
+    print '  [getTc2Result]'
+    print '  '+str(getTc2Result)
+    print '  [tc2Result]'
+    print '  '+str(tc2Result)
+
+  # test case 3
+  acmd.vim.vimFullFileName = os.path.realpath(pathName2 +'/'+ fileName2)
+  acmd.vim.vimAcmdAutoEncode = '0'
+  getTc3Result = acmd.getData()
+  codepage = locale.getdefaultlocale()[1].lower()
+  tmp1 = re.sub( r'\\', '/', os.path.realpath(pathName2)+'/'+fileName2)
+  tmp2 = re.sub( r'\\', '/', os.path.realpath(pathName2).decode('utf-8').encode(codepage)+'/')
+  tc3Result = [ tmp1, tmp2, re.sub( r'\.[^.]*$', '', fileName2), 'haml' ]
+
+  if getTc3Result == tc3Result:
+    print '  test case 3:success'
+  else:
+    print '  test case 3:failure'
+    print '  [getTc3Result]'
+    print '  '+str(getTc3Result)
+    print '  [tc3Result]'
+    print '  '+str(tc3Result)
+# }}}
+
+# loadAcmd 加载autocommand模块 {{{
 def loadAcmd():
   global acmd
   try:
@@ -157,6 +220,7 @@ def loadAcmd():
   finally:
     sys.path.remove(os.path.realpath('../src'))
     sys.path.remove(os.path.realpath('./'))
+# }}}
 
 def defaultTest():
   loadAcmd()
@@ -167,6 +231,7 @@ def testTest():
   testCreateConfigFile()
   testVimInterface()
   testGetConfig()
+  testGetData()
 
 if __name__ == '__main__':
 
