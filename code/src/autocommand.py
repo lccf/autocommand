@@ -133,10 +133,10 @@ def getCache():
     command = re.split(r'(?<!\\)\|', commandCache)
     for i in range(0, len(command)):
       if command[i].find('|')>-1:
-        command[i] = re.sub(r'\\\|', r'\|', command[i])
+        command[i] = re.sub(r'\\\|', '|', command[i])
 
     if command[0].find('@')==0:
-      commandPath = commandPath[0].lstrip('@')
+      commandPath = command[0].lstrip('@')
       del command[0]
 
   return [commandPath, command]
@@ -145,10 +145,10 @@ def getCache():
 def setCache(commandPath, command):
   tmpCommand = ''
   if commandPath:
-    tmpCommand = '@'+re.sub(r'\|', r'\\\|', commandPath)
+    tmpCommand = '@'+re.sub(r'\\', r'/', commandPath)
 
   for i in range(0, len(command)):
-    tmpCommand += re.sub(r'\|', r'\\\|', command[i])
+    tmpCommand += '|'+re.sub(r'\|', '|', command[i])
 
   vimInterface('command', 'let w:commandCache="'+tmpCommand+'"')
 
@@ -157,7 +157,7 @@ def setCache(commandPath, command):
 #获取命令
 def getCommand():
   commandName = ''
-  command, commandPath = getCache()
+  commandPath, command = getCache()
 
   if not command:
     fullFileName, filePath, fileName, fileSuffix = getData()
@@ -247,10 +247,8 @@ def runCommand():
 
   errMsg = ''
 
-  print commandPath
   for i in range(0, len(command)):
     # 执行命令
-    #print command[i]
     ret = subprocess.Popen(command[i], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     errMsg = ret.stderr.read()
     if errMsg != '': break
