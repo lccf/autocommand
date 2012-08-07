@@ -148,7 +148,7 @@ def setCache(commandPath, command):
     tmpCommand = '@'+re.sub(r'\\', r'/', commandPath)
 
   for i in range(0, len(command)):
-    tmpCommand += '|'+re.sub(r'\|', '|', command[i])
+    tmpCommand += '|'+re.sub(r'\|', '\|', command[i])
 
   vimInterface('command', 'let w:commandCache="'+tmpCommand+'"')
 
