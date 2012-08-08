@@ -93,7 +93,7 @@ def getConfig(cPath):
 
     result = [config, cPath, aPath, rPath]
   else:
-    result = False
+    result = [False, cPath, '', '']
 
   return result
 
@@ -145,7 +145,7 @@ def getCache():
 def setCache(commandPath, command):
   tmpCommand = ''
   if commandPath:
-    tmpCommand = '@'+re.sub(r'\\', r'/', commandPath)
+    tmpCommand = '@'+commandPath
 
   for i in range(0, len(command)):
     tmpCommand += '|'+re.sub(r'\|', '\|', command[i])
@@ -175,9 +175,10 @@ def getCommand():
           if command[i].find('|')>-1:
             command[i] = re.sub(r'\\\|', r'\|', command[i])
 
-      if command[0].find('$') == 0:
-        commandPath = command[0].lstrip('$')
-        del command[0]
+        if command[0].find('@') == 0:
+          commandPath = command[0].lstrip('@')
+          del command[0]
+
       else:
         commandPath = cmdPath
 
