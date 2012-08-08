@@ -71,7 +71,7 @@ def testGetConfig():
   except:
     print ' don\'t create dir:./testGetConfig'
     sys.exit()
-  dirLv1 = os.path.realpath('./testGetConfig')
+  dirLv1 = os.path.realpath('./testGetConfig').replace('\\', '/')
   #创建临时目录
   os.chdir(dirLv1)
   #创建测试配置文件
@@ -99,7 +99,7 @@ def testGetConfig():
   except:
     print ' don\'t create dir:./testGetConfigLv2'
     sys.exit()
-  dirLv2 = os.path.realpath('./testGetConfigLv2')
+  dirLv2 = os.path.realpath('./testGetConfigLv2').replace('\\', '/')
   #创建临时目录
   os.chdir(dirLv2)
   #获取1级目录配置文件读取值
@@ -122,7 +122,7 @@ def testGetConfig():
   except:
     print ' don\'t create dir:./testGetConfigLv3'
     sys.exit()
-  dirLv3 = os.path.realpath('./testGetConfigLv3')
+  dirLv3 = os.path.realpath('./testGetConfigLv3').replace('\\', '/')
   #创建临时目录
   os.chdir(dirLv3)
   #获取3级目录配置文件读取值
@@ -154,8 +154,8 @@ def testGetData():
   # 针对情况：文件名及文件都为assic字符的情况下
   acmd.vim.vimFullFileName = os.path.realpath(pathName1 +'/'+ fileName1)
   getTc1Result = acmd.getData()
-  tc1Result = [re.sub(r'\\', '/', os.path.realpath(pathName1 +'/'+ fileName1)), re.sub(r'\\', '/', os.path.realpath(pathName1))+'/', 'readme', 'haml']
-  #tc1Result = [re.sub(r'\\', '/', os.path.realpath(pathName1 +'/'+ fileName1)), re.sub(r'\\', '/', os.path.realpath(pathName1))+'/', 'readme', 'haml.']
+  tc1Result = [os.path.realpath(pathName1 +'/'+ fileName1).replace('\\', '/'), os.path.realpath(pathName1).replace('\\', '/')+'/', 'readme', 'haml']
+  #tc1Result = [os.path.realpath(pathName1 +'/'+ fileName1).replace('\\', '/'), os.path.realpath(pathName1).replace('\\', '/')+'/', 'readme', 'haml.']
 
   if getTc1Result == tc1Result:
     print '  test case 1:success'
@@ -168,8 +168,8 @@ def testGetData():
   acmd.vim.vimFullFileName = os.path.realpath(pathName2 +'/'+ fileName2)
   getTc2Result = acmd.getData()
   codepage = locale.getdefaultlocale()[1].lower()
-  tmp1 = re.sub( r'\\', '/', os.path.realpath(pathName2+'/'+fileName2))
-  tmp2 = re.sub( r'\\', '/', os.path.realpath(pathName2).decode('utf-8').encode(codepage)+'/')
+  tmp1 = os.path.realpath(pathName2+'/'+fileName2).replace('\\', '/')
+  tmp2 = os.path.realpath(pathName2).replace('\\', '/').decode('utf-8').encode(codepage)+'/'
   tc2Result = [ tmp1, tmp2, re.sub( r'\.[^.]*$', '', fileName2).decode('utf-8').encode(codepage), 'haml' ]
   #tc2Result = [ tmp1, tmp2, re.sub( r'\.[^.]*$', '', fileName2).decode('utf-8').encode(codepage), 'haml.' ]
 
@@ -185,8 +185,8 @@ def testGetData():
   acmd.vim.vimAcmdAutoEncode = '0'
   getTc3Result = acmd.getData()
   codepage = locale.getdefaultlocale()[1].lower()
-  tmp1 = re.sub( r'\\', '/', os.path.realpath(pathName2)+'/'+fileName2)
-  tmp2 = re.sub( r'\\', '/', os.path.realpath(pathName2).decode('utf-8').encode(codepage)+'/')
+  tmp1 = os.path.realpath(pathName2).replace('\\', '/')+'/'+fileName2
+  tmp2 = os.path.realpath(pathName2).replace('\\', '/').decode('utf-8').encode(codepage)+'/'
   tc3Result = [ tmp1, tmp2, re.sub( r'\.[^.]*$', '', fileName2), 'haml' ]
   #tc3Result = [ tmp1, tmp2, re.sub( r'\.[^.]*$', '', fileName2), 'haml.' ]
 
@@ -201,12 +201,12 @@ def testGetData():
 def testSetCache():
   print '\n[test] setCache'
 
-  testPath = os.path.realpath('./testSetCache')
+  testPath = os.path.realpath('./testSetCache').replace('\\', '/')
   # test case 1
   testCommand = ['haml -nq test.haml test.html', 'mv test.html ../']
   acmd.setCache(testPath, testCommand)
-  tc1Result = '@'+re.sub(r'\\', '/', testPath)+'|'+'|'.join(testCommand)
-  #tc1Result = '.@'+re.sub(r'\\', '/', testPath)+'|'+'|'.join(testCommand)
+  tc1Result = '@'+testPath+'|'+'|'.join(testCommand)
+  #tc1Result = '.@'+testPath+'|'+'|'.join(testCommand)
   getTc1Result = acmd.vim.vimCommandCache
   if getTc1Result == tc1Result:
     print '  test case 1:success'
@@ -219,8 +219,8 @@ def testSetCache():
   # test case 2
   testCommand = ['sass te|st.sass te|st.css', 'mv te|st.css ../css']
   acmd.setCache(testPath, testCommand)
-  tc2Result = '@'+re.sub(r'\\', '/', testPath)+'|'+re.sub( r'@', '|', re.sub( r'\|', '\|', '@'.join(testCommand)))
-  #tc2Result = '.@'+re.sub(r'\\', '/', testPath)+'|'+re.sub( r'@', '|', re.sub( r'\|', '\|', '@'.join(testCommand)))
+  tc2Result = '@'+testPath+'|'+'@'.join(testCommand).replace('|', '\|').replace('@', '|')
+  #tc2Result = '.@'+testPath+'|'+'@'.join(testCommand).replace('|', '\|').replace('@', '|')
   getTc2Result = acmd.vim.vimCommandCache
   if getTc2Result == tc2Result:
     print '  test case 2:success'
@@ -236,12 +236,12 @@ def testSetCache():
 def testGetCache():
   print '\n[test] getCache'
 
-  testPath = os.path.realpath('./testGetCache')
+  testPath = os.path.realpath('./testGetCache').replace('\\', '/')
   # test case 1
   testCommand = ['haml -nq test.haml test.html', 'mv test.html ../']
   acmd.setCache(testPath, testCommand)
-  tc1Result = [re.sub(r'\\', '/', testPath), testCommand]
-  #tc1Result = [re.sub(r'\\', '/.', testPath), testCommand]
+  tc1Result = [testPath, testCommand]
+  #tc1Result = [testPath, testCommand]
   getTc1Result = acmd.getCache()
   if getTc1Result == tc1Result:
     print '  test case 1:success'
@@ -254,8 +254,8 @@ def testGetCache():
   # test case 2
   testCommand = ['sass te|st.sass te|st.css', 'mv te|st.css ../css']
   acmd.setCache(testPath, testCommand)
-  tc2Result = '@'+re.sub(r'\\', '/', testPath)+'|'+re.sub( r'@', '|', re.sub( r'\|', '\|', '@'.join(testCommand)))
-  #tc2Result = '.@'+re.sub(r'\\', '/', testPath)+'|'+re.sub( r'@', '|', re.sub( r'\|', '\|', '@'.join(testCommand)))
+  tc2Result = '@'+testPath+'|'+'@'.join(testCommand).replace('|', '\|').replace('@', '|')
+  #tc2Result = '.@'+testPath+'|'+'@'.join(testCommand).replace('|', '\|').replace('@', '|')
   getTc2Result = acmd.vim.vimCommandCache
   if getTc2Result == tc2Result:
     print '  test case 2:success'
@@ -264,6 +264,44 @@ def testGetCache():
     sys.exit()
 
   acmd.vim.vimCommandCache=''
+
+# }}}
+
+# testGetCommand 测试获取命令 {{{
+def testGetCommand():
+  print '\n[test] getCommand'
+
+  # 创建测试目录
+
+  # 设置配置文件
+  acmd.configContent = '''{
+  "compass/sass/": {
+    "sass": {
+      "_path":"~/compass",
+      "command": [
+        "compass compile sass/#{$fileName}.sass"
+      ]
+    }
+  },
+  "haml": {
+    "command": "haml -nq #{$fileName}.haml #{$fileName}.html"
+    /* 执行命令 */
+  },
+  "sass": {
+    "command": "sass #{$fileName}.sass #{$fileName}.css"
+    /* 执行命令 */
+  },
+  "less": {
+    "command": "lessc #{$fileName}.less>#{$fileName}.css"
+    /* 执行命令 */
+  },
+  "coffee": {
+    "command": "coffee -bp #{$fileName}.coffee>#{$fileName}.js"
+    /* 执行命令 */
+  }
+}
+/* vim:ft=javascript:ts=2:sts=2:sw=2:et
+*/'''
 
 # }}}
 
@@ -295,6 +333,7 @@ def testTest():
   testGetData()
   testSetCache()
   testGetCache()
+  testGetCommand()
 
 if __name__ == '__main__':
 
