@@ -271,8 +271,6 @@ def testGetCache():
 def testGetCommand():
   print '\n[test] getCommand'
 
-  # 创建测试目录
-
   # 设置配置文件
   acmd.configContent = '''{
   "compass/sass/": {
@@ -303,6 +301,37 @@ def testGetCommand():
 /* vim:ft=javascript:ts=2:sts=2:sw=2:et
 */'''
 
+  #暂存目录
+  currDir = os.getcwd()
+
+  # test case 1
+  # 创建测试目录
+  if os.path.isdir('./testGetCommand'):
+    shutil.rmtree('./testGetCommand')
+  try:
+    os.mkdir('./testGetCommand')
+    print '  create dir:./testGetCommand'
+  except:
+    print ' don\'t create dir:./testGetCommand'
+    sys.exit()
+
+  dirLv1 = os.path.realpath('./testGetCommand').replace('\\', '/')
+
+  os.chdir(dirLv1)
+  acmd.createConfigFile()
+  os.makedirs('./compass/sass')
+  acmd.vim.vimFullFileName = os.path.realpath('./compass/sass/test.sass')
+  tc1Result = [dirLv1+'/compass', ' compass', ['compass compile sass/test.sass']]
+  getTc1Result = acmd.getCommand()
+  if getTc1Result == tc1Result:
+    print '  test case 1:success'
+  else:
+    print '  test case 1:failure\n  [tc1Result]\n  %s\n  [getTc1Result]\n  %s' %(str(tc1Result), str(getTc1Result))
+    sys.exit()
+
+  os.chdir(currDir)
+  if os.path.isdir('./testGetCommand'):
+    shutil.rmtree(dirLv1)
 # }}}
 
 # loadAcmd 加载autocommand模块 {{{
