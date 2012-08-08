@@ -10,11 +10,13 @@
 import os, re, sys, vim, json, time, types, locale, subprocess
 
 cFileName = '_config'
+configContent = ''
 
 def createConfigFile():
   global configContent
   # 初始化配置
-  configContent = '''{
+  if not configContent:
+    configContent = '''{
   "haml": {
     "command": "haml -nq #{$fileName}.haml #{$fileName}.html"
     /* 执行命令 */
@@ -41,7 +43,7 @@ def createConfigFile():
 
   return True;
 
-#拦截对vim对象的直接访问，方便后期测试代码时模拟接口
+# 拦截对vim对象的直接访问，方便后期测试代码时模拟接口
 def vimInterface(command, param):
   if command=='eval':
     return vim.eval(param)
@@ -49,11 +51,11 @@ def vimInterface(command, param):
     return vim.command(param)
 
 def getConfig(cPath):
-  #相对路径
+  # 相对路径
   aPath = ''
-  #绝对路径
+  # 绝对路径
   rPath = ''
-  #是否读取到配置文件
+  # 是否读取到配置文件
   isConfig = False
 
   temp = os.path.split(cPath);
@@ -123,7 +125,7 @@ def getData():
 
   return result
 
-#获取缓存
+# 获取缓存
 def getCache():
   command=''
   commandPath=''
@@ -154,18 +156,18 @@ def setCache(commandPath, command):
 
   return True
 
-#获取命令
+# 获取命令
 def getCommand():
   commandName = ''
   commandPath, command = getCache()
-
+  # 缓存为空
   if not command:
     fullFileName, filePath, fileName, fileSuffix = getData()
     config, cmdPath, aPath, rPath = getConfig(filePath)
 
-    #如果读取配失败则返回False
+    # 如果读取配失败则返回False
     if not config:
-      #如果未从配置文件取到命令则从vim中读取命令
+      # 如果未从配置文件取到命令则从vim中读取命令
       command = vimInterface('eval', 'autocommand#getCommand("'+fileSuffix+'")')
       # 命令数组
       if command.find('|') > -1:
@@ -180,41 +182,49 @@ def getCommand():
           del command[0]
 
       else:
-        commandPath = cmdPath
+        commandPath = filePath
 
+    # 处理配置文件
     else:
+      # 当前路径
       if aPath:
-        if config.has_key(aPath):
-          #是否存在路径
-          if config[aPath].has_key(fileSuffix):
-            command = config[aPath][fileSuffix]['command']
+        # 如果存在当前路径配置，当前路径配置中是否存在针对当前文件类型的配置
+        if config.has_key(aPath) and config[aPath].has_key(fileSuffix):
+          command = config[aPath][fileSuffix]['command']
 
+          # 计算处理路径
           if config[aPath][fileSuffix].has_key('_path'):
             commandPath = config[aPath][fileSuffix]['_path']
 
           elif config[aPath].has_key('_path'):
             commandPath = config[aPath]['_path']
 
-      #如果未找到对应命令
+      # 如果未找到对应命令
       if not command:
         if config.has_key(fileSuffix):
           command = config[fileSuffix]['command']
 
-      #如果未找到指定路径
+      # 如果未找到指定路径
       if not commandPath:
         if config[fileSuffix].has_key('_path'):
           commandPath = config[fileSuffix]['_path']
         elif config.has_key('_path'):
           commandPath = config['_path']
-      #换算相对路径
+
+      # 换算相对路径
       if commandPath:
         if commandPath[0] == '~':
           if commandPath > 1:
             commandPath = os.path.normpath(cmdPath+commandPath.lstrip('~'))
+
           elif len(commandPath) == 1:
             commandPath = cmdPath
+
         else:
           commandPath = join.path.normpath(filePath+cmdPath)
+
+        # 翻转换行
+        commandPath = commandPath.replace('\\', '/')
       else:
         commandPath = filePath
 
@@ -226,8 +236,6 @@ def getCommand():
         if aPath:
           command[i] = re.sub(r'#{\$aPath}', aPath, command[i])
           command[i] = re.sub(r'#{\$rPath}', rPath, command[i])
-
-    setCache(commandPath, command)
 
   # 获取执行命令的名称
   commandName = re.match(r'(^[^|> ]+)', command[0])
@@ -260,17 +268,13 @@ def runCommand():
 
   # 打印错误信息
   if errMsg:
-    #转义换行符
-    errMsg = re.sub(r'\r(?:\n|)', r'\n', errMsg)
-    #转义斜杠
-    errMsg = re.sub(r'\\', r'\\\\', errMsg)
-    #转义引号
-    errMsg = re.sub(r'\"', r'\\"', errMsg)
-    #打印错误命令
+    # 转义换行符、转义斜杠、转义引号
+    errMsg = re.sub(r'\r(?:\n|)', r'\n', errMsg).replace('\\', '\\\\').replace('"', '\\"')
+    # 打印错误命令
     vimInterface('command', 'echohl ErrorMsg | echo "'+errMsg+'" | echohl None')
-  #打印执行结果
+  # 打印执行结果
   else:
-    #打印执行成功命令
+    # 打印执行成功命令
     print time.strftime('%H:%M:%S')+' execute'+commandName
 
 # build time $buildTime$
