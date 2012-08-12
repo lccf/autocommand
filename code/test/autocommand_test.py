@@ -71,7 +71,7 @@ def testGetConfig():
   except:
     print ' don\'t create dir:./testGetConfig'
     sys.exit()
-  dirLv1 = os.path.realpath('./testGetConfig').replace('\\', '/')
+  dirLv1 = os.path.realpath('./testGetConfig').replace('\\', '/')+'/'
   #创建临时目录
   os.chdir(dirLv1)
   #创建测试配置文件
@@ -275,7 +275,15 @@ def testGetCommand():
   acmd.configContent = '''{
   "compass/sass/": {
     "sass": {
-      "_path":"~/compass",
+      "_path":"../",
+      "command": [
+        "compass compile sass/#{$fileName}.sass"
+      ]
+    }
+  },
+  "compass2/sass/": {
+    "sass": {
+      "_path":"~/compass2",
       "command": [
         "compass compile sass/#{$fileName}.sass"
       ]
@@ -286,7 +294,10 @@ def testGetCommand():
     /* 执行命令 */
   },
   "sass": {
-    "command": "sass #{$fileName}.sass #{$fileName}.css"
+    "command": [
+      "sass #{$fileName}.sass #{$fileName}.css",
+      "cp #{$fileName}.css ../css"
+    ]
     /* 执行命令 */
   },
   "less": {
@@ -304,7 +315,6 @@ def testGetCommand():
   #暂存目录
   currDir = os.getcwd()
 
-  # test case 1
   # 创建测试目录
   if os.path.isdir('./testGetCommand'):
     shutil.rmtree('./testGetCommand')
@@ -315,18 +325,53 @@ def testGetCommand():
     print ' don\'t create dir:./testGetCommand'
     sys.exit()
 
-  dirLv1 = os.path.realpath('./testGetCommand').replace('\\', '/')
-
+  dirLv1 = os.path.realpath('./testGetCommand').replace('\\', '/')+'/'
   os.chdir(dirLv1)
   acmd.createConfigFile()
+
+  # test case 1 层级目录测试
   os.makedirs('./compass/sass')
   acmd.vim.vimFullFileName = os.path.realpath('./compass/sass/test.sass')
-  tc1Result = [dirLv1+'/compass', ' compass', ['compass compile sass/test.sass']]
+  tc1Result = [dirLv1+'compass/', ' compass', ['compass compile sass/test.sass']]
+  #tc1Result = [dirLv1+'/compass/', ' compass.', ['compass compile sass/test.sass']]
   getTc1Result = acmd.getCommand()
   if getTc1Result == tc1Result:
     print '  test case 1:success'
   else:
     print '  test case 1:failure\n  [tc1Result]\n  %s\n  [getTc1Result]\n  %s' %(str(tc1Result), str(getTc1Result))
+    sys.exit()
+
+  # test case 2 多命令测试
+  acmd.vim.vimFullFileName = os.path.realpath('./test.sass')
+  tc2Result = [dirLv1, ' sass', ["sass test.sass test.css", "cp test.css ../css"]]
+  #tc2Result = [dirLv1, ' sass.', ["sass test.sass test.css", "cp test.css ../css"]]
+  getTc2Result = acmd.getCommand()
+  if getTc2Result == tc2Result:
+    print '  test case 2:success'
+  else:
+    print '  test case 2:failure\n  [tc2Result]\n  %s\n  [getTc2Result]\n  %s' %(str(tc2Result), str(getTc2Result))
+    sys.exit()
+
+  # test case 3 单命令测试
+  acmd.vim.vimFullFileName = os.path.realpath('./test.haml')
+  tc3Result = [dirLv1, ' haml', ['haml -nq test.haml test.html']]
+  getTc3Result = acmd.getCommand()
+  if getTc3Result == tc3Result:
+    print '  test case 3:success'
+  else:
+    print '  test case 3:failure\n  [tc3Result]\n  %s\n  [getTc3Result]\n  %s' %(str(tc3Result), str(getTc3Result))
+    sys.exit()
+
+  # test case 4 层级相对目录测试
+  os.makedirs('./compass2/sass')
+  acmd.vim.vimFullFileName = os.path.realpath('./compass2/sass/test.sass')
+  tc4Result = [dirLv1+'compass2/', ' compass', ['compass compile sass/test.sass']]
+  #tc4Result = [dirLv1+'/compass2/', ' compass.', ['compass compile sass/test.sass']]
+  getTc4Result = acmd.getCommand()
+  if getTc4Result == tc4Result:
+    print '  test case 4:success'
+  else:
+    print '  test case 4:failure\n  [tc4Result]\n  %s\n  [getTc4Result]\n  %s' %(str(tc4Result), str(getTc4Result))
     sys.exit()
 
   os.chdir(currDir)
