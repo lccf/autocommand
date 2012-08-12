@@ -68,7 +68,7 @@ def getConfig(cPath):
     if os.path.isdir(path):
       if os.path.isfile(path + '/' + cFileName):
         isConfig = True
-        cPath = path
+        cPath = path+'/'
         break
       else:
         temp = os.path.split(path)
@@ -88,8 +88,7 @@ def getConfig(cPath):
     del fp
     # 去除注释
     rex = re.compile(r'^(?:\s+|)/\*.*?\*/(?:\s+|)$', re.M+re.S)
-    config = rex.sub('', config)
-    #config = re.sub(r'\\', r'\\\\', config)
+    config = rex.sub('', config).replace( '\\', '\\\\' )
     # 序列化Json
     config = json.loads(config)
 
@@ -102,15 +101,13 @@ def getConfig(cPath):
 def getData():
   # 获取文件相关信息
   fullFileName = vimInterface('eval', 'w:fullFileName')
-  if os.name == 'nt':
-    fullFileName = re.sub(r'\\', '/', fullFileName)
+  if os.name == 'nt': fullFileName = fullFileName.replace('\\', '/')
 
-  tmpData = re.match(r'^(.*?|)([^/]+?)(\.)([^.]+|)$', fullFileName)
+  tmpData = re.match(r'^(.*?|)([^/]+?)(?:\.)([^.]+|)$', fullFileName)
   tmpData = tmpData.groups()
-
   filePath = tmpData[0]
   fileName = tmpData[1]
-  fileSuffix = tmpData[3]
+  fileSuffix = tmpData[2]
 
   # 处理编码问题
   formencoding = vimInterface('eval', '&enc').lower()
@@ -135,7 +132,7 @@ def getCache():
     command = re.split(r'(?<!\\)\|', commandCache)
     for i in range(0, len(command)):
       if command[i].find('|')>-1:
-        command[i] = re.sub(r'\\\|', '|', command[i])
+        command[i] = command[i].replace( '\|', '|' )
 
     if command[0].find('@')==0:
       commandPath = command[0].lstrip('@')
@@ -150,7 +147,7 @@ def setCache(commandPath, command):
     tmpCommand = '@'+commandPath
 
   for i in range(0, len(command)):
-    tmpCommand += '|'+re.sub(r'\|', '\|', command[i])
+    tmpCommand += '|'+command[i].replace( '|', '\|' )
 
   vimInterface('command', 'let w:commandCache="'+tmpCommand+'"')
 
@@ -175,7 +172,7 @@ def getCommand():
         command = re.split(r'(?<!\\)\|', command)
         for i in range(0, len(command)):
           if command[i].find('|')>-1:
-            command[i] = re.sub(r'\\\|', r'\|', command[i])
+            command[i] = command[i].replace( '\|', '|' )
 
         if command[0].find('@') == 0:
           commandPath = command[0].lstrip('@')
@@ -221,10 +218,12 @@ def getCommand():
             commandPath = cmdPath
 
         else:
-          commandPath = join.path.normpath(filePath+cmdPath)
+          commandPath = os.path.normpath(filePath+commandPath)
 
         # 翻转换行
-        commandPath = commandPath.replace('\\', '/')
+        if os.name == 'nt': commandPath = commandPath.replace('\\', '/')
+        # 补反斜杠
+        commandPath = re.sub(r'([^/])$', r'\1/', commandPath)
       else:
         commandPath = filePath
 
@@ -232,10 +231,9 @@ def getCommand():
         command = [command]
 
       for i in range(0, len(command)):
-        command[i] = re.sub(r'#{\$fileName}', fileName, command[i])
+        command[i] = command[i].replace('#{$fileName}', fileName)
         if aPath:
-          command[i] = re.sub(r'#{\$aPath}', aPath, command[i])
-          command[i] = re.sub(r'#{\$rPath}', rPath, command[i])
+          command[i] = command[i].replace('#{$aPath}', aPath).replace('#{$rPath}', rPath)
 
   # 获取执行命令的名称
   commandName = re.match(r'(^[^|> ]+)', command[0])
