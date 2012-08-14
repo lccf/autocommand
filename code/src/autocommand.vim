@@ -50,6 +50,13 @@ fu! autocommand#initWindow()
   let w:commandCache=''
 endf
 
+" 初始化缓冲区
+fu! autocommand#initBuffer()
+  if !s:py_loaded | cal autocommand#loadpy() | en
+  let b:fullFileName=expand('%:p')
+  let b:commandCache=''
+endf
+
 " 重置缓存
 fu! autocommand#flush()
   cal autocommand#loadpy()
@@ -108,7 +115,7 @@ let s:fileTypeList=exists('g:acmd_filetype_list') ?  g:acmd_filetype_list : ['ha
 " 设置自动绑定事件
 if s:callKey!=""
   exe 'au FileType '.join(s:fileTypeList, ',').' cal autocommand#bind()'
-  exe 'au BufWinEnter *.'.join(s:fileTypeList, ',*.').' cal autocommand#initWindow()'
+  exe 'au BufNew *.'.join(s:fileTypeList, ',*.').' cal autocommand#initBuffer()'
 en
 
 " 绑定命令
