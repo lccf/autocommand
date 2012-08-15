@@ -100,7 +100,7 @@ def getConfig(cPath):
 
 def getData():
   # 获取文件相关信息
-  fullFileName = vimInterface('eval', 'w:fullFileName')
+  fullFileName = vimInterface('eval', 'b:fullFileName')
   if os.name == 'nt': fullFileName = fullFileName.replace('\\', '/')
 
   tmpData = re.match(r'^(.*?|)([^/]+?)(?:\.)([^.]+|)$', fullFileName)
@@ -112,7 +112,7 @@ def getData():
   # 处理编码问题
   formencoding = vimInterface('eval', '&enc').lower()
   localeencoding = locale.getdefaultlocale()[1].lower()
-  autoencode = vimInterface('eval', 'exists("w:acmd_auto_encode") ? w:acmd_auto_encode : g:acmd_auto_encode')
+  autoencode = vimInterface('eval', 'exists("b:acmd_auto_encode") ? b:acmd_auto_encode : g:acmd_auto_encode')
   if formencoding != localeencoding:
     filePath = filePath.decode(formencoding).encode(localeencoding)
     if autoencode == '1':
@@ -126,7 +126,7 @@ def getData():
 def getCache():
   command=''
   commandPath=''
-  commandCache=vimInterface('eval', 'w:commandCache')
+  commandCache=vimInterface('eval', 'b:commandCache')
 
   if commandCache:
     command = re.split(r'(?<!\\)\|', commandCache)
@@ -149,7 +149,7 @@ def setCache(commandPath, command):
   for i in range(0, len(command)):
     tmpCommand += '|'+command[i].replace( '|', '\|' )
 
-  vimInterface('command', 'let w:commandCache="'+tmpCommand+'"')
+  vimInterface('command', 'let b:commandCache="'+tmpCommand+'"')
 
   return True
 
