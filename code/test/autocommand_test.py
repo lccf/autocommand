@@ -13,6 +13,43 @@ import os, sys, re, json, locale, shutil
 # autocommand模块变量
 acmd = False
 
+# testVimInterface 测试vim接口 {{{
+def testVimInterface():
+  print '\n[test] vimInterface'
+  print '  eval:'+acmd.vimInterface('eval', 'test eval')
+  print '  command:'+acmd.vimInterface('command', 'test command')
+# }}}
+
+# testGetCFileName 测试获取配置文件名 {{{
+def testGetCFileName():
+  print '\n[test] getCFileName'
+
+  # test case 1 测试获取默认文件名
+  tc1Result = '_config'
+  #tc1Result = '_config.' #取消这行注释查看手动触发的错误
+  getTc1Result = acmd.getCFileName()
+  # 比较值输出结果
+  if getTc1Result == tc1Result:
+    print '  test case 1:success'
+  else:
+    print '  test case 1:failure\n  [tc1Result]\n  %s\n  [getTc1Result]\n  %s' %(str(tc1Result), str(getTc1Result))
+    sys.exit()
+
+  # test case 2 测试自定义配置文件名
+  tc2Result = acmd.vim.vimAcmdConfigName = '.config'
+  #tc2Result = '.config.' #取消这行注释查看手动触发的错误
+  getTc2Result = acmd.getCFileName()
+  # 复原配置文件
+  acmd.vim.vimAcmdConfigName = tc1Result
+  # 比较输出结果
+  if getTc2Result == tc2Result:
+    print '  test case 2:success'
+  else:
+    print '  test case 2:failure\n  [tc2Result]\n  %s\n  [getTc2Result]\n  %s' %(str(tc2Result), str(getTc2Result))
+    sys.exit()
+
+# }}}
+
 # testCreateConfigFile 测试创建配置文件 {{{
 def testCreateConfigFile():
   print '\n[test] createConfigFile'
@@ -25,7 +62,7 @@ def testCreateConfigFile():
     print '  create:failure'
 
   try:
-    fp = open(acmd.cFileName)
+    fp = open(acmd.getCFileName())
     readContent = fp.read()
   except:
     print '  read:failure'
@@ -42,19 +79,11 @@ def testCreateConfigFile():
     print '  compare:differ'
 
   try:
-    os.unlink(acmd.cFileName)
+    os.unlink(acmd.getCFileName())
     print '  remove:success'
   except:
     print '  remove:failure'
     sys.exit()
-# }}}
-
-# testVimInterface 测试vim接口 {{{
-def testVimInterface():
-  print '\n[test] vimInterface'
-  #print '[test]vimInterface eval:'+acmd.vimInterface('eval', 'test eval')
-  print '  eval:'+acmd.vimInterface('eval', 'test eval')
-  print '  command:'+acmd.vimInterface('command', 'test command')
 # }}}
 
 # testGetConfig 测试获取配置文件 {{{
@@ -401,8 +430,9 @@ def defaultTest():
 
 def testTest():
   loadAcmd()
-  testCreateConfigFile()
   testVimInterface()
+  testGetCFileName()
+  testCreateConfigFile()
   testGetConfig()
   testGetData()
   testSetCache()
