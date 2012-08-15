@@ -9,10 +9,21 @@
 # --------------------------------------------------
 import os, re, sys, vim, json, time, types, locale, subprocess
 
-cFileName = '_config'
 configContent = ''
 
+# 拦截对vim对象的直接访问，方便后期测试代码时模拟接口
+def vimInterface(command, param):
+  if command == 'eval':
+    return vim.eval(param)
+  elif command == 'command':
+    return vim.command(param)
+
+def getCFileName():
+  return vimInterface('eval', 'exists("b:acmd_config_name") ? b:acmd_config_name : g:acmd_config_name')
+
 def createConfigFile():
+  # 获取配置文件名
+  cFileName = getCFileName()
   global configContent
   # 初始化配置
   if not configContent:
@@ -43,13 +54,6 @@ def createConfigFile():
 
   return True;
 
-# 拦截对vim对象的直接访问，方便后期测试代码时模拟接口
-def vimInterface(command, param):
-  if command=='eval':
-    return vim.eval(param)
-  elif command=='command':
-    return vim.command(param)
-
 def getConfig(cPath):
   # 相对路径
   aPath = ''
@@ -57,6 +61,8 @@ def getConfig(cPath):
   rPath = ''
   # 是否读取到配置文件
   isConfig = False
+  # 获取配置文件名
+  cFileName = getCFileName()
 
   temp = os.path.split(cPath);
   if not temp[1]:
