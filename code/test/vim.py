@@ -1,25 +1,25 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 import re
-# w:fullFileName变量
+# b:fullFileName变量
 vimFullFileName = False
 # &enc变量
 vimEnc = 'utf-8'
-# w:acmd_auto_encode/g:acmd_auto_encode变量
+# b:acmd_auto_encode/g:acmd_auto_encode变量
 vimAcmdAutoEncode = '1'
-# w:commandCache变量
+# b:commandCache变量
 vimCommandCache = ''
 
 def eval(param=''):
   if param == 'test eval':
     return 'success'
-  elif param == 'w:fullFileName':
+  elif param == 'b:fullFileName':
     return vimFullFileName
   elif param == '&enc':
     return vimEnc
-  elif param == 'exists("w:acmd_auto_encode") ? w:acmd_auto_encode : g:acmd_auto_encode':
+  elif param == 'exists("b:acmd_auto_encode") ? b:acmd_auto_encode : g:acmd_auto_encode':
     return vimAcmdAutoEncode
-  elif param == 'w:commandCache':
+  elif param == 'b:commandCache':
     return vimCommandCache
   else:
     return 'failure'
@@ -27,9 +27,9 @@ def eval(param=''):
 def command(param=''):
   if param == 'test command':
     return 'success'
-  elif param.index('let w:commandCache') > -1:
+  elif param.index('let b:commandCache') > -1:
     global vimCommandCache
-    commandCache = re.match(r'let w:commandCache="(?P<commandCache>[^"]+)"', param)
+    commandCache = re.match(r'let b:commandCache="(?P<commandCache>[^"]+)"', param)
     if commandCache and commandCache.group('commandCache'):
       vimCommandCache = commandCache.group('commandCache')
   else:
