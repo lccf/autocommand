@@ -7,6 +7,8 @@ vimFullFileName = False
 vimEnc = 'utf-8'
 # b:acmd_auto_encode/g:acmd_auto_encode变量
 vimAcmdAutoEncode = '1'
+# b:acmd_config_name/g:acmd_config_name变量
+vimAcmdConfigName = '_config'
 # b:commandCache变量
 vimCommandCache = ''
 
@@ -19,6 +21,8 @@ def eval(param=''):
     return vimEnc
   elif param == 'exists("b:acmd_auto_encode") ? b:acmd_auto_encode : g:acmd_auto_encode':
     return vimAcmdAutoEncode
+  elif param == 'exists("b:acmd_config_name") ? b:acmd_config_name : g:acmd_config_name':
+    return vimAcmdConfigName
   elif param == 'b:commandCache':
     return vimCommandCache
   else:
