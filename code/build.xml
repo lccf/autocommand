@@ -12,6 +12,9 @@
     <target name="build" description="build plugin" depends="clean,createDir,copyFile,replace">
         <echo message="build sucess" />
     </target>
+    <target name="debug" description="build plugin for debug" depends="clean,createDir,copyFile,copyFileDebug,replace,replaceDebug">
+        <echo message="build debug sucess" />
+    </target>
     <!--create dir-->
     <target name="createDir">
         <mkdir dir="plugin"/>
@@ -20,6 +23,9 @@
     <target name="copyFile">
         <copy file="src/autocommand.vim" tofile="plugin/autocommand.vim" overwrite="true" />
     </target>
+    <target name="copyFileDebug">
+        <copy file="src/autocommand.py" tofile="plugin/autocommand.py" overwrite="true" />
+    </target>
     <!--replace-->
     <target name="replace">
         <replace encoding="utf-8" file="plugin/autocommand.vim" token="#$file:autocommand.py$" value="${src.autocommand.py}"/>
@@ -27,6 +33,12 @@
         <replace encoding="utf-8" file="plugin/autocommand.vim" token="$version$" value="${version}"/>
         <replace encoding="utf-8" file="plugin/autocommand.vim" token="$buildTime$" value="${buildTime}"/>
         <replace encoding="utf-8" file="plugin/autocommand.vim" token="$lastChange$" value="${lastChange}"/>
+    </target>
+    <!--replace-->
+    <target name="replaceDebug">
+        <replace encoding="utf-8" file="plugin/autocommand.py" token="$version$" value="${version}"/>
+        <replace encoding="utf-8" file="plugin/autocommand.py" token="$buildTime$" value="${buildTime}"/>
+        <replace encoding="utf-8" file="plugin/autocommand.py" token="$lastChange$" value="${lastChange}"/>
     </target>
     <!--clean-->
     <target name="clean" description="clean">
