@@ -26,12 +26,12 @@ fu! autocommand#main()
   " 调试状态重新加载文件，不使用缓存
   if s:isDebug==1 | cal autocommand#flush() | en
   " 判断窗口变量
-  if !exists('w:fullFileName') | cal autocommand#initWindow() | en
+  if !exists('w:fullFileName') | cal autocommand#initBuffer() | en
   " 执行命令
   py runCommand()
 endf
 
-" 加载autoCommand.py
+" 加载autoCommand.py {{{
 fu! autocommand#loadpy()
   let s:py_loaded=1
   if s:isDebug==1
@@ -42,13 +42,7 @@ python << EOF
 EOF
   en
 endf
-
-" 初始化窗口
-fu! autocommand#initWindow()
-  if !s:py_loaded | cal autocommand#loadpy() | en
-  let w:fullFileName=expand('%:p')
-  let w:commandCache=''
-endf
+" }}}
 
 " 初始化缓冲区
 fu! autocommand#initBuffer()
@@ -60,7 +54,7 @@ endf
 " 重置缓存
 fu! autocommand#flush()
   cal autocommand#loadpy()
-  cal autocommand#initWindow()
+  cal autocommand#initBuffer()
 endf
 
 " 绑定事件
@@ -71,9 +65,9 @@ fu! autocommand#bind()
 endf
 
 " 初始化配置文件
-fu! autocommand#init()
+fu! autocommand#initConfig()
   " 如果文件未加载则加载
-  cal autocommand#initWindow()
+  cal autocommand#loadpy()
   let s:cwd=getcwd()
   let s:dir=input("create config ".s:cwd."(yN):")
   redraw
@@ -115,12 +109,12 @@ let s:fileTypeList=exists('g:acmd_filetype_list') ?  g:acmd_filetype_list : ['ha
 " 设置自动绑定事件
 if s:callKey!=""
   exe 'au FileType '.join(s:fileTypeList, ',').' cal autocommand#bind()'
-  exe 'au BufNew *.'.join(s:fileTypeList, ',*.').' cal autocommand#initBuffer()'
+  exe 'au BufNewFile,BufRead *.'.join(s:fileTypeList, ',*.').' cal autocommand#initBuffer()'
 en
 
 " 绑定命令
 com! -nargs=0 Acmd cal autocommand#main()
-com! -nargs=0 AcmdInitConfig cal autocommand#init()
+com! -nargs=0 AcmdInitConfig cal autocommand#initConfig()
 
 " 设置默认自动转码
 if !exists('g:acmd_auto_encode') | let g:acmd_auto_encode=1 | en
