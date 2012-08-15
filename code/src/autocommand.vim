@@ -119,5 +119,8 @@ com! -nargs=0 AcmdInitConfig cal autocommand#initConfig()
 " 设置默认自动转码
 if !exists('g:acmd_auto_encode') | let g:acmd_auto_encode=1 | en
 
+" 设置默认配置文件名
+if !exists('g:acmd_config_name') | let g:acmd_config_name='_config' | en
+
 " build time $buildTime$
 " vim:sw=2:ts=2:sts=2:et:fdm=marker:fdc=1
