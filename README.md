@@ -9,4 +9,5 @@ autocommand 是一款vim插件（依赖python），用来执行自动命令。�
 - [快速入门(v0.3)] (https://github.com/thinkjs/autocommand/wiki/qucikref03)
 - [快速入门(v0.2)] (https://github.com/thinkjs/autocommand/wiki/qucikref)
 
-[历史版本下载](https://github.com/thinkjs/autocommand/tags)
+历史版本下载:
+[https://github.com/thinkjs/autocommand/tags](https://github.com/thinkjs/autocommand/tags)
