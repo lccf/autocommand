@@ -105,7 +105,7 @@ endf
 " 获取绑定快捷键
 let s:callKey=exists('g:acmd_call_key') ? g:acmd_call_key : ''
 " 配置文件类型
-let s:fileTypeList=exists('g:acmd_filetype_list') ?  g:acmd_filetype_list : ['haml', 'sass', 'less', 'coffee']
+let s:fileTypeList=exists('g:acmd_filetype_list') ?  g:acmd_filetype_list : ['haml', 'sass', 'less', 'coffee', 'jade']
 " 设置自动绑定事件
 if s:callKey!=""
   exe 'au FileType '.join(s:fileTypeList, ',').' cal autocommand#bind()'
