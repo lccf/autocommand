@@ -1,6 +1,8 @@
 " --------------------------------------------------
 " [autocommand相关配置] {{{
 " --------------------------------------------------
+" 配置文件名称
+"let g:acmd_config_name='.config'
 " 开启调试模式
 "let g:acmd_debug=1
 " 调用快捷键
@@ -28,6 +30,6 @@ fu! Autocommand_usercmd(fileType)
 	retu l:ret
 endf
 " 修正win平台ruby1.9x下自动编码出错
-"au FileType haml,sass let w:acmd_auto_encode=0
+"au BufNewFile,BufRead haml,sass let b:acmd_auto_encode=0
 
 " vim:sw=4:ts=4:sts=4:noet:fdm=marker:fdc=1
