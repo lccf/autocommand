@@ -38,4 +38,8 @@ def command(param=''):
       vimCommandCache = commandCache.group('commandCache')
   else:
     return 'failure'
+
+def clearCache():
+  global vimCommandCache
+  vimCommandCache = ''
 # vim:sw=2:ts=2:sts=2:et:fdm=marker:fdc=1
