@@ -225,6 +225,7 @@ def getCommand():
           del command[0]
 
       else:
+        command = [command]
         commandPath = filePath
 
     # 处理配置文件
@@ -236,11 +237,11 @@ def getCommand():
           command = config[aPath][fileSuffix]['command']
 
           # 计算处理路径
-          if config[aPath][fileSuffix].has_key('_path'):
-            commandPath = config[aPath][fileSuffix]['_path']
+          if config[aPath][fileSuffix].has_key('path'):
+            commandPath = config[aPath][fileSuffix]['path']
 
-          elif config[aPath].has_key('_path'):
-            commandPath = config[aPath]['_path']
+          elif config[aPath].has_key('path'):
+            commandPath = config[aPath]['path']
 
       # 如果未找到对应命令
       if not command:
@@ -249,10 +250,10 @@ def getCommand():
 
       # 如果未找到指定路径
       if not commandPath:
-        if config[fileSuffix].has_key('_path'):
-          commandPath = config[fileSuffix]['_path']
-        elif config.has_key('_path'):
-          commandPath = config['_path']
+        if config[fileSuffix].has_key('path'):
+          commandPath = config[fileSuffix]['path']
+        elif config.has_key('path'):
+          commandPath = config['path']
 
       # 换算相对路径
       if commandPath:
@@ -276,10 +277,12 @@ def getCommand():
       if type(command) != types.ListType:
         command = [command]
 
-      for i in range(0, len(command)):
-        command[i] = command[i].replace('#{$fileName}', fileName)
-        if aPath:
-          command[i] = command[i].replace('#{$aPath}', aPath).replace('#{$rPath}', rPath)
+    for i in range(0, len(command)):
+      command[i] = command[i].replace('#{$fileName}', fileName)
+      if aPath:
+        command[i] = command[i].replace('#{$aPath}', aPath).replace('#{$rPath}', rPath)
+
+    setCache(commandPath, command)
 
   # 获取执行命令的名称
   commandName = re.match(r'(^[^|> ]+)', command[0])
@@ -321,7 +324,7 @@ def runCommand():
     # 打印执行成功命令
     print time.strftime('%H:%M:%S')+' execute'+commandName
 
-# build time 08/16/2012 20:52
+# build time 08/21/2012 13:15
 # vim:sw=2:ts=2:sts=2:et:fdm=marker:fdc=1
 
 EOF
@@ -407,5 +410,5 @@ if !exists('g:acmd_auto_encode') | let g:acmd_auto_encode=1 | en
 " 设置默认配置文件名
 if !exists('g:acmd_config_name') | let g:acmd_config_name='_config' | en
 
-" build time 08/16/2012 20:52
+" build time 08/21/2012 13:15
 " vim:sw=2:ts=2:sts=2:et:fdm=marker:fdc=1
