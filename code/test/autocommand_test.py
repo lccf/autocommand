@@ -304,7 +304,7 @@ def testGetCommand():
   acmd.configContent = '''{
   "compass/sass/": {
     "sass": {
-      "_path":"../",
+      "path":"../",
       "command": [
         "compass compile sass/#{$fileName}.sass"
       ]
@@ -312,7 +312,7 @@ def testGetCommand():
   },
   "compass2/sass/": {
     "sass": {
-      "_path":"~/compass2",
+      "path":"~/compass2",
       "command": [
         "compass compile sass/#{$fileName}.sass"
       ]
@@ -374,6 +374,7 @@ def testGetCommand():
   acmd.vim.vimFullFileName = os.path.realpath('./test.sass')
   tc2Result = [dirLv1, ' sass', ["sass test.sass test.css", "cp test.css ../css"]]
   #tc2Result = [dirLv1, ' sass.', ["sass test.sass test.css", "cp test.css ../css"]]
+  acmd.vim.clearCache()
   getTc2Result = acmd.getCommand()
   if getTc2Result == tc2Result:
     print '  test case 2:success'
@@ -384,6 +385,7 @@ def testGetCommand():
   # test case 3 单命令测试
   acmd.vim.vimFullFileName = os.path.realpath('./test.haml')
   tc3Result = [dirLv1, ' haml', ['haml -nq test.haml test.html']]
+  acmd.vim.clearCache()
   getTc3Result = acmd.getCommand()
   if getTc3Result == tc3Result:
     print '  test case 3:success'
@@ -396,6 +398,7 @@ def testGetCommand():
   acmd.vim.vimFullFileName = os.path.realpath('./compass2/sass/test.sass')
   tc4Result = [dirLv1+'compass2/', ' compass', ['compass compile sass/test.sass']]
   #tc4Result = [dirLv1+'/compass2/', ' compass.', ['compass compile sass/test.sass']]
+  acmd.vim.clearCache()
   getTc4Result = acmd.getCommand()
   if getTc4Result == tc4Result:
     print '  test case 4:success'
