@@ -282,7 +282,9 @@ def runCommand():
   # 打印执行结果
   else:
     # 打印执行成功命令
-    print time.strftime('%H:%M:%S')+' execute'+commandName
+    # print time.strftime('%H:%M:%S')+' execute'+commandName
+    # 某些系统上gvim无法正确识别print指令，调过调用gvim的echo来实现打印
+    vimInterface('command', 'ec "'+time.strftime('%H:%M:%S')+' execute'+commandName+'"')
 
 # build time $buildTime$
 # vim:sw=2:ts=2:sts=2:et:fdm=marker:fdc=1

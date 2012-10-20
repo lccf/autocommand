@@ -26,7 +26,7 @@ fu! autocommand#main()
   " 调试状态重新加载文件，不使用缓存
   if s:isDebug==1 | cal autocommand#flush() | en
   " 判断窗口变量
-  if !exists('w:fullFileName') | cal autocommand#initBuffer() | en
+  if !exists('b:fullFileName') | cal autocommand#initBuffer() | en
   " 执行命令
   py runCommand()
 endf
