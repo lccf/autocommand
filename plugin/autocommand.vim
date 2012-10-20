@@ -4,7 +4,7 @@
 "     Author: lcc
 "      Email: leftcold@gmail.com
 "    Version: 0.3(beta)
-" LastChange: 08/16/2012 20:51
+" LastChange: 08/21/2012 21:14
 " --------------------------------------------------
 " 需python支持
 if !has('python') | fini | en
@@ -26,7 +26,7 @@ fu! autocommand#main()
   " 调试状态重新加载文件，不使用缓存
   if s:isDebug==1 | cal autocommand#flush() | en
   " 判断窗口变量
-  if !exists('w:fullFileName') | cal autocommand#initBuffer() | en
+  if !exists('b:fullFileName') | cal autocommand#initBuffer() | en
   " 执行命令
   py runCommand()
 endf
@@ -45,7 +45,7 @@ python << EOF
 #     Author: lcc
 #      Email: leftcold@gmail.com
 #    Version: 0.3(beta)
-# LastChange: 08/16/2012 20:51
+# LastChange: 08/21/2012 21:14
 # --------------------------------------------------
 import os, re, sys, vim, json, time, types, locale, subprocess
 
@@ -322,9 +322,11 @@ def runCommand():
   # 打印执行结果
   else:
     # 打印执行成功命令
-    print time.strftime('%H:%M:%S')+' execute'+commandName
+    # print time.strftime('%H:%M:%S')+' execute'+commandName
+    # 某些系统上gvim无法正确识别print指令，调过调用gvim的echo来实现打印
+    vimInterface('command', 'ec "'+time.strftime('%H:%M:%S')+' execute'+commandName+'"')
 
-# build time 08/21/2012 13:15
+# build time 10/20/2012 21:15
 # vim:sw=2:ts=2:sts=2:et:fdm=marker:fdc=1
 
 EOF
@@ -410,5 +412,5 @@ if !exists('g:acmd_auto_encode') | let g:acmd_auto_encode=1 | en
 " 设置默认配置文件名
 if !exists('g:acmd_config_name') | let g:acmd_config_name='_config' | en
 
-" build time 08/21/2012 13:15
+" build time 10/20/2012 21:15
 " vim:sw=2:ts=2:sts=2:et:fdm=marker:fdc=1
