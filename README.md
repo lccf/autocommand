@@ -20,7 +20,7 @@ autocommand 是一款vim插件（依赖python），用来执行自动命令。�
 ##使用说明
 你可以通过以下链接内容学习 autocommand
 
-- 快速入门( [v0.3](/thinkjs/autocommand/wiki/quickref03), [v0.2](/thinkjs/autocommand/wiki/quickref) )
+- 快速入门( [v0.3](https://github.com/thinkjs/autocommand/wiki/quickref03), [v0.2](https://github.com/thinkjs/autocommand/wiki/quickref) )
 
 历史版本下载:
-[https://github.com/thinkjs/autocommand/tags](/thinkjs/autocommand/tags)
+[https://github.com/thinkjs/autocommand/tags](https://github.com/thinkjs/autocommand/tags)
