@@ -3,8 +3,8 @@
 "       Desc: 插件主文件
 "     Author: lcc
 "      Email: leftcold@gmail.com
-"    Version: 0.3(beta)
-" LastChange: 08/21/2012 21:14
+"    Version: 0.3(b2)
+" LastChange: 04/14/2013 00:00
 " --------------------------------------------------
 " 需python支持
 if !has('python') | fini | en
@@ -44,8 +44,8 @@ python << EOF
 #       Desc: 插件python部份
 #     Author: lcc
 #      Email: leftcold@gmail.com
-#    Version: 0.3(beta)
-# LastChange: 08/21/2012 21:14
+#    Version: 0.3(b2)
+# LastChange: 04/14/2013 00:00
 # --------------------------------------------------
 import os, re, sys, vim, json, time, types, locale, subprocess
 
@@ -58,9 +58,15 @@ def vimInterface(command, param):
   elif command == 'command':
     return vim.command(param)
 
+# 处理编码问题
+formencoding = vimInterface('eval', '&enc').lower()
+localeencoding = locale.getdefaultlocale()[1].lower()
+
+# 获取配置文件名
 def getCFileName():
   return vimInterface('eval', 'exists("b:acmd_config_name") ? b:acmd_config_name : g:acmd_config_name')
 
+# 创建配置文件 createConfigFile {{{
 def createConfigFile():
   # 获取配置文件名
   cFileName = getCFileName()
@@ -68,23 +74,36 @@ def createConfigFile():
   # 初始化配置
   if not configContent:
     configContent = '''{
-  "haml": {
-    "command": "haml -nq #{$fileName}.haml #{$fileName}.html"
-    /* 执行命令 */
+  "jade/": {
+    "path": "~",
+    "jade": {
+      "command": [
+        "jade -PO ../ jade/#{$fileName}.jade"
+      ]
+    }
   },
-  "sass": {
-    "command": "sass #{$fileName}.sass #{$fileName}.css"
-    /* 执行命令 */
+  "sass/": {
+    "path": "~",
+    "sass": {
+      "command": [
+        "sass --style compact sass/#{$fileName}.sass ../css/#{$fileName}.css"
+         /* , "cp -fp ../css/#{$fileName}.css ../../public/css" */
+      ]
+    }
   },
-  "less": {
-    "command": "lessc #{$fileName}.less>#{$fileName}.css"
-    /* 执行命令 */
-  },
-  "coffee": {
-    "command": "coffee -bp #{$fileName}.coffee>#{$fileName}.js"
-    /* 执行命令 */
+  "coffee/": {
+    "path": "~",
+    "coffee": {
+      "command":[
+        "coffee -bp coffee/#{$fileName}.coffee>../js/#{$fileName}.js"
+         /* , "cp -fp ../js/#{$fileName}.js ../../public/js" */
+      ]
+    }
   }
-}'''
+}
+/* vim:ft=javascript ts=2 sts=2 sw=2 et
+*/
+'''
   # 写入配置
   fp = open(cFileName, 'w')
   fp.write(configContent)
@@ -93,7 +112,9 @@ def createConfigFile():
   del fp
 
   return True;
+# }}}
 
+# 获取配置件 getConfig {{{
 def getConfig(cPath):
   # 相对路径
   aPath = ''
@@ -143,11 +164,15 @@ def getConfig(cPath):
     result = [False, cPath, '', '']
 
   return result
+# }}}
 
+# 获取数据 getData {{{
 def getData():
   # 获取文件相关信息
   fullFileName = vimInterface('eval', 'b:fullFileName')
   if os.name == 'nt': fullFileName = fullFileName.replace('\\', '/')
+
+  fullFileName = fullFileName.decode(formencoding)
 
   tmpData = re.match(r'^(.*?|)([^/]+?)(?:\.)([^.]+|)$', fullFileName)
   tmpData = tmpData.groups()
@@ -155,26 +180,24 @@ def getData():
   fileName = tmpData[1]
   fileSuffix = tmpData[2]
 
-  # 处理编码问题
-  formencoding = vimInterface('eval', '&enc').lower()
-  localeencoding = locale.getdefaultlocale()[1].lower()
-  autoencode = vimInterface('eval', 'exists("b:acmd_auto_encode") ? b:acmd_auto_encode : g:acmd_auto_encode')
-  if formencoding != localeencoding:
-    filePath = filePath.decode(formencoding).encode(localeencoding)
-    if autoencode == '1':
-      fileName = fileName.decode(formencoding).encode(localeencoding)
+  #if formencoding != localeencoding:
+    #filePath = filePath.decode(formencoding).encode(localeencoding)
+    #if autoencode == '1':
+      #fileName = fileName.decode(formencoding).encode(localeencoding)
 
   result = [fullFileName, filePath, fileName, fileSuffix]
 
   return result
+# }}}
 
-# 获取缓存
+# 获取缓存 getCache {{{
 def getCache():
   command=''
   commandPath=''
   commandCache=vimInterface('eval', 'b:commandCache')
 
   if commandCache:
+    commandCache = commandCache.decode(formencoding)
     command = re.split(r'(?<!\\)\|', commandCache)
     for i in range(0, len(command)):
       if command[i].find('|')>-1:
@@ -185,9 +208,11 @@ def getCache():
       del command[0]
 
   return [commandPath, command]
+# }}}
 
-# 设置缓存
+# 设置缓存 setCache {{{
 def setCache(commandPath, command):
+
   tmpCommand = ''
   if commandPath:
     tmpCommand = '@'+commandPath
@@ -195,11 +220,15 @@ def setCache(commandPath, command):
   for i in range(0, len(command)):
     tmpCommand += '|'+command[i].replace( '|', '\|' )
 
-  vimInterface('command', 'let b:commandCache="'+tmpCommand+'"')
+  tmpCommand = 'let b:commandCache="'+tmpCommand+'"'
+  tmpCommand = tmpCommand.encode(formencoding)
+
+  vimInterface('command', tmpCommand)
 
   return True
+# }}}
 
-# 获取命令
+# 获取命令 getCommand {{{
 def getCommand():
   commandName = ''
   commandPath, command = getCache()
@@ -291,9 +320,15 @@ def getCommand():
   else:
     commandName = ' command'
 
-  return [commandPath, commandName, command]
+  commandPath = commandPath.encode(localeencoding)
 
+  return [commandPath, commandName, command]
+# }}}
+
+# 执行命令 runCommand {{{
 def runCommand():
+  errMsg = ''
+  autoencode = vimInterface('eval', 'exists("b:acmd_auto_encode") ? b:acmd_auto_encode : g:acmd_auto_encode')
   commandPath, commandName, command = getCommand()
 
   # 改变路径
@@ -301,11 +336,17 @@ def runCommand():
     tempPath = os.getcwd();
     os.chdir(commandPath);
 
-  errMsg = ''
-
+  # 历遍命令数组，逐条执行
   for i in range(0, len(command)):
+    #编码转换
+    tmpcommand = command[i]
+    if autoencode == '1':
+      tmpcommand = tmpcommand.encode(localeencoding)
+    else:
+      tmpcommand = tmpcommand.encode(formencoding)
+
     # 执行命令
-    ret = subprocess.Popen(command[i], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    ret = subprocess.Popen(tmpcommand, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     errMsg = ret.stderr.read()
     if errMsg != '': break
 
@@ -317,6 +358,12 @@ def runCommand():
   if errMsg:
     # 转义换行符、转义斜杠、转义引号
     errMsg = re.sub(r'\r(?:\n|)', r'\n', errMsg).replace('\\', '\\\\').replace('"', '\\"')
+
+    if formencoding != localeencoding:
+      #print 'errMsg.decode('+formencoding+').encode('+localeencoding+')'
+      #print errMsg
+      errMsg = errMsg.decode(localeencoding).encode(formencoding)
+
     # 打印错误命令
     vimInterface('command', 'echohl ErrorMsg | echo "'+errMsg+'" | echohl None')
   # 打印执行结果
@@ -325,10 +372,10 @@ def runCommand():
     # print time.strftime('%H:%M:%S')+' execute'+commandName
     # 某些系统上gvim无法正确识别print指令，调过调用gvim的echo来实现打印
     vimInterface('command', 'ec "'+time.strftime('%H:%M:%S')+' execute'+commandName+'"')
+# }}}
 
-# build time 10/20/2012 21:15
+# build time 04/14/2013 00:01
 # vim:sw=2:ts=2:sts=2:et:fdm=marker:fdc=1
-
 EOF
   en
 endf
@@ -412,5 +459,5 @@ if !exists('g:acmd_auto_encode') | let g:acmd_auto_encode=1 | en
 " 设置默认配置文件名
 if !exists('g:acmd_config_name') | let g:acmd_config_name='_config' | en
 
-" build time 10/20/2012 21:15
+" build time 04/14/2013 00:01
 " vim:sw=2:ts=2:sts=2:et:fdm=marker:fdc=1
