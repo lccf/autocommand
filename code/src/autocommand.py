@@ -19,12 +19,13 @@ def vimInterface(command, param):
     #print param
     return vim.command(param)
 
-def getCFileName():
-  return vimInterface('eval', 'exists("b:acmd_config_name") ? b:acmd_config_name : g:acmd_config_name')
-
 # 处理编码问题
 formencoding = vimInterface('eval', '&enc').lower()
 localeencoding = locale.getdefaultlocale()[1].lower()
+
+# 获取配置文件名
+def getCFileName():
+  return vimInterface('eval', 'exists("b:acmd_config_name") ? b:acmd_config_name : g:acmd_config_name')
 
 def createConfigFile():
   # 获取配置文件名
