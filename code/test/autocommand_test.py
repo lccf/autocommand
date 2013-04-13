@@ -197,9 +197,9 @@ def testGetData():
   acmd.vim.vimFullFileName = os.path.realpath(pathName2 +'/'+ fileName2)
   getTc2Result = acmd.getData()
   codepage = locale.getdefaultlocale()[1].lower()
-  tmp1 = os.path.realpath(pathName2+'/'+fileName2).replace('\\', '/')
-  tmp2 = os.path.realpath(pathName2).replace('\\', '/').decode('utf-8').encode(codepage)+'/'
-  tc2Result = [ tmp1, tmp2, re.sub( r'\.[^.]*$', '', fileName2).decode('utf-8').encode(codepage), 'haml' ]
+  tmp1 = os.path.realpath(pathName2+'/'+fileName2).replace('\\', '/').decode('utf-8')
+  tmp2 = os.path.realpath(pathName2).replace('\\', '/').decode('utf-8')+'/'
+  tc2Result = [ tmp1, tmp2, re.sub( r'\.[^.]*$', '', fileName2).decode('utf-8'), 'haml' ]
   #tc2Result = [ tmp1, tmp2, re.sub( r'\.[^.]*$', '', fileName2).decode('utf-8').encode(codepage), 'haml.' ]
 
   if getTc2Result == tc2Result:
@@ -215,8 +215,8 @@ def testGetData():
   getTc3Result = acmd.getData()
   codepage = locale.getdefaultlocale()[1].lower()
   tmp1 = os.path.realpath(pathName2).replace('\\', '/')+'/'+fileName2
-  tmp2 = os.path.realpath(pathName2).replace('\\', '/').decode('utf-8').encode(codepage)+'/'
-  tc3Result = [ tmp1, tmp2, re.sub( r'\.[^.]*$', '', fileName2), 'haml' ]
+  tmp2 = os.path.realpath(pathName2).replace('\\', '/').decode('utf-8')+'/'
+  tc3Result = [ tmp1.decode('utf-8'), tmp2, re.sub( r'\.[^.]*$', '', fileName2).decode('utf-8'), 'haml' ]
   #tc3Result = [ tmp1, tmp2, re.sub( r'\.[^.]*$', '', fileName2), 'haml.' ]
 
   if getTc3Result == tc3Result:
