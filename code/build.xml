@@ -2,7 +2,7 @@
 <project name="aotucommand.build" default="build" basedir=".">
     <!--attribute-->
     <property name="version" value="0.3(beta)"/>
-    <property name="lastChange" value="08/21/2012 21:14"/>
+    <property name="lastChange" value="04/13/2013 14:34"/>
     <loadfile encoding="utf-8" property="src.autocommand.py" srcfile="src/autocommand.py"/>
     <!--build time-->
     <tstamp>
