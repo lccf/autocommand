@@ -11,8 +11,8 @@ autocommand 是一款vim插件（依赖python），用来执行自动命令。�
 
 需求
 
-- python 2.x 支持
-- vim 7.3x
+- python 2.6+ 支持
+- vim 7.2+
 
 将 plugin 目录拷贝至对应的 vim 默认目录。
 
