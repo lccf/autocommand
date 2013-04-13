@@ -2,4 +2,3 @@
 *.pyc
 !.gitignore
 code/plugin
-code/test
