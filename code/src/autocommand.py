@@ -265,6 +265,7 @@ def runCommand():
 
   for i in range(0, len(command)):
     # 执行命令
+    #print command[i]
     ret = subprocess.Popen(command[i], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     errMsg = ret.stderr.read()
     if errMsg != '': break
@@ -277,6 +278,15 @@ def runCommand():
   if errMsg:
     # 转义换行符、转义斜杠、转义引号
     errMsg = re.sub(r'\r(?:\n|)', r'\n', errMsg).replace('\\', '\\\\').replace('"', '\\"')
+
+    # 处理编码问题
+    formencoding = vimInterface('eval', '&enc').lower()
+    localeencoding = locale.getdefaultlocale()[1].lower()
+    if formencoding != localeencoding:
+      #print 'errMsg.decode('+formencoding+').encode('+localeencoding+')'
+      #print errMsg
+      errMsg = errMsg.decode(localeencoding).encode(formencoding)
+
     # 打印错误命令
     vimInterface('command', 'echohl ErrorMsg | echo "'+errMsg+'" | echohl None')
   # 打印执行结果
