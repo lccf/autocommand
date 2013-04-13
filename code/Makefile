@@ -4,9 +4,7 @@ BUILDTIME=$(shell date '+%m\/%d\/%Y\ %H:%M')
 
 
 release: plugin/autocommand.vim
-debug: plugin/autocommand.debug.vim plugin/autocommand.debug.py
-
-all: release debug
+debug: plugin/autocommand.vim plugin/autocommand.py
 
 plugin/autocommand.vim: src/autocommand.vim src/autocommand.py
 	@cd plugin || mkdir plugin
@@ -18,14 +16,7 @@ plugin/autocommand.vim: src/autocommand.vim src/autocommand.py
 	sed -i 's/$$buildTime\$$/$(BUILDTIME)/g' $@.tmp
 	mv $@.tmp $@
 
-plugin/autocommand.debug.vim: src/autocommand.vim
-	@cd plugin || mkdir plugin
-	cp $< $@.tmp
-	sed -i 's/$$version\$$/$(VERSION)/g' $@.tmp
-	sed -i 's/$$lastChange\$$/$(LASTCHANGE)/g' $@.tmp
-	sed -i 's/$$buildTime\$$/$(BUILDTIME)/g' $@.tmp
-	mv $@.tmp $@
-plugin/autocommand.debug.py: src/autocommand.py
+plugin/autocommand.py: src/autocommand.py
 	@cd plugin || mkdir plugin
 	cp $< $@.tmp
 	sed -i 's/$$version\$$/$(VERSION)/g' $@.tmp
