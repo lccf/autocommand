@@ -322,10 +322,16 @@ def runCommand():
     if formencoding != localeencoding:
       #print 'errMsg.decode('+formencoding+').encode('+localeencoding+')'
       #print errMsg
-      errMsg = errMsg.decode(localeencoding).encode(formencoding)
+      try:
+        tErrMsg = errMsg.decode(localeencoding).encode(formencoding)
+      except:
+        tErrMsg = errMsg
+      #tErrMsg = errMsg
+    else:
+      tErrMsg = errMsg
 
     # 打印错误命令
-    vimInterface('command', 'echohl ErrorMsg | echo "'+errMsg+'" | echohl None')
+    vimInterface('command', 'echohl ErrorMsg | echo "'+tErrMsg+'" | echohl None')
   # 打印执行结果
   else:
     # 打印执行成功命令
