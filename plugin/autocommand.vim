@@ -4,7 +4,7 @@
 "     Author: lcc
 "      Email: leftcold@gmail.com
 "    Version: 0.3(b2)
-" LastChange: 04/14/2013 00:00
+" LastChange: 05/07/2013 17:57
 " --------------------------------------------------
 " 需python支持
 if !has('python') | fini | en
@@ -45,7 +45,7 @@ python << EOF
 #     Author: lcc
 #      Email: leftcold@gmail.com
 #    Version: 0.3(b2)
-# LastChange: 04/14/2013 00:00
+# LastChange: 05/07/2013 17:57
 # --------------------------------------------------
 import os, re, sys, vim, json, time, types, locale, subprocess
 
@@ -362,10 +362,16 @@ def runCommand():
     if formencoding != localeencoding:
       #print 'errMsg.decode('+formencoding+').encode('+localeencoding+')'
       #print errMsg
-      errMsg = errMsg.decode(localeencoding).encode(formencoding)
+      try:
+        tErrMsg = errMsg.decode(localeencoding).encode(formencoding)
+      except:
+        tErrMsg = errMsg
+      #tErrMsg = errMsg
+    else:
+      tErrMsg = errMsg
 
     # 打印错误命令
-    vimInterface('command', 'echohl ErrorMsg | echo "'+errMsg+'" | echohl None')
+    vimInterface('command', 'echohl ErrorMsg | echo "'+tErrMsg+'" | echohl None')
   # 打印执行结果
   else:
     # 打印执行成功命令
@@ -374,7 +380,7 @@ def runCommand():
     vimInterface('command', 'ec "'+time.strftime('%H:%M:%S')+' execute'+commandName+'"')
 # }}}
 
-# build time 04/14/2013 00:01
+# build time 05/07/2013 17:57
 # vim:sw=2:ts=2:sts=2:et:fdm=marker:fdc=1
 EOF
   en
@@ -432,7 +438,7 @@ fu! autocommand#getCommand(fileType)
   elsei a:fileType=="coffee"
     let ret="coffee -p #{$fileName}.coffee>#{$fileName}.js"
   elsei a:fileType=="jade"
-:    let ret="jade -P #{$fileName}.jade"
+    let ret="jade -P #{$fileName}.jade"
   else
     let ret=""
   en
@@ -459,5 +465,5 @@ if !exists('g:acmd_auto_encode') | let g:acmd_auto_encode=1 | en
 " 设置默认配置文件名
 if !exists('g:acmd_config_name') | let g:acmd_config_name='_config' | en
 
-" build time 04/14/2013 00:01
+" build time 05/07/2013 17:57
 " vim:sw=2:ts=2:sts=2:et:fdm=marker:fdc=1
