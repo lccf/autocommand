@@ -431,6 +431,10 @@ def defaultTest():
   loadAcmd()
   print 'default'
 
+def simpleTest():
+  loadAcmd()
+  print 'simple'
+
 def testTest():
   loadAcmd()
   testVimInterface()
