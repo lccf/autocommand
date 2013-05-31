@@ -11,7 +11,7 @@ debug: plugin/autocommand.vim plugin/autocommand.py
 #sed -n '42,126p' src/autocommand.vim >> $@.tmp
 
 plugin/autocommand.vim: src/autocommand.vim src/autocommand.py
-	@cd plugin || mkdir plugin
+	@test -d plugin || mkdir plugin
 	awk -v RS='#\\$$file:autocommand.py\\$$' '{print $$0 > "$@.tmp_"NR}' src/autocommand.vim
 	sed -i '$$d' $@.tmp_1
 	sed -i '1d;$$d' $@.tmp_2
@@ -24,7 +24,7 @@ plugin/autocommand.vim: src/autocommand.vim src/autocommand.py
 	mv $@.tmp $@
 
 plugin/autocommand.py: src/autocommand.py
-	@cd plugin || mkdir plugin
+	@test -d plugin || mkdir plugin
 	cp $< $@.tmp
 	sed -i 's/$$version\$$/$(VERSION)/g' $@.tmp
 	sed -i 's/$$lastChange\$$/$(LASTCHANGE)/g' $@.tmp
