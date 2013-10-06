@@ -1,6 +1,6 @@
 #autocommand
 
-version: 0.3(b2), last change: 05/07/2013 10:02
+version: 0.3, last change: 10/07/2013 01:10, nikename: fitow(2013年10月7日零晨，台风菲特来袭)
 
 v0.3 新增内容 [自定义配置文件名](https://github.com/thinkjs/autocommand/wiki/quickref03#wiki-a2_5)、[多路径配置](https://github.com/thinkjs/autocommand/wiki/quickref03#wiki-a3_2)
 
