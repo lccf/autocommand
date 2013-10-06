@@ -1,5 +1,5 @@
-VERSION=0.3\(b2\)
-LASTCHANGE=05\/07\/2013\ 17:57
+VERSION=0.3
+LASTCHANGE=10\/07\/2013\ 00:55
 BUILDTIME=$(shell date '+%m\/%d\/%Y\ %H:%M')
 
 
