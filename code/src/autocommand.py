@@ -178,7 +178,7 @@ def setCache(commandPath, command):
     tmpCommand = '@'+commandPath
 
   for i in range(0, len(command)):
-    tmpCommand += '|'+command[i].replace( '|', '\|' )
+    tmpCommand += '|'+command[i].replace( '|', r'\\|' )
 
   tmpCommand = 'let b:commandCache="'+tmpCommand+'"'
   tmpCommand = tmpCommand.encode(formencoding)
