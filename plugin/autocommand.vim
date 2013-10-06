@@ -3,8 +3,8 @@
 "       Desc: 插件主文件
 "     Author: lcc
 "      Email: leftcold@gmail.com
-"    Version: 0.3(b2)
-" LastChange: 05/07/2013 17:57
+"    Version: 0.3
+" LastChange: 10/07/2013 00:55
 " --------------------------------------------------
 " 需python支持
 if !has('python') | fini | en
@@ -44,8 +44,8 @@ python << EOF
 #       Desc: 插件python部份
 #     Author: lcc
 #      Email: leftcold@gmail.com
-#    Version: 0.3(b2)
-# LastChange: 05/07/2013 17:57
+#    Version: 0.3
+# LastChange: 10/07/2013 00:55
 # --------------------------------------------------
 import os, re, sys, vim, json, time, types, locale, subprocess
 
@@ -218,7 +218,7 @@ def setCache(commandPath, command):
     tmpCommand = '@'+commandPath
 
   for i in range(0, len(command)):
-    tmpCommand += '|'+command[i].replace( '|', '\|' )
+    tmpCommand += '|'+command[i].replace( '|', r'\\|' )
 
   tmpCommand = 'let b:commandCache="'+tmpCommand+'"'
   tmpCommand = tmpCommand.encode(formencoding)
@@ -380,7 +380,7 @@ def runCommand():
     vimInterface('command', 'ec "'+time.strftime('%H:%M:%S')+' execute'+commandName+'"')
 # }}}
 
-# build time 05/07/2013 17:57
+# build time 10/07/2013 00:56
 # vim:sw=2:ts=2:sts=2:et:fdm=marker:fdc=1
 EOF
   en
@@ -465,5 +465,5 @@ if !exists('g:acmd_auto_encode') | let g:acmd_auto_encode=1 | en
 " 设置默认配置文件名
 if !exists('g:acmd_config_name') | let g:acmd_config_name='_config' | en
 
-" build time 05/07/2013 17:57
+" build time 10/07/2013 00:56
 " vim:sw=2:ts=2:sts=2:et:fdm=marker:fdc=1
