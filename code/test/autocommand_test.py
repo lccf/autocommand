@@ -247,9 +247,8 @@ def testSetCache():
 
   # test case 2
   testCommand = ['sass te|st.sass te|st.css', 'mv te|st.css ../css']
+  tc2Result = '@'+testPath+'|'+'@'.join(testCommand).replace('|', r'\\|').replace(r'@', '|')
   acmd.setCache(testPath, testCommand)
-  tc2Result = '@'+testPath+'|'+'@'.join(testCommand).replace('|', '\|').replace('@', '|')
-  #tc2Result = '.@'+testPath+'|'+'@'.join(testCommand).replace('|', '\|').replace('@', '|')
   getTc2Result = acmd.vim.vimCommandCache
   if getTc2Result == tc2Result:
     print '  test case 2:success'
@@ -283,8 +282,7 @@ def testGetCache():
   # test case 2
   testCommand = ['sass te|st.sass te|st.css', 'mv te|st.css ../css']
   acmd.setCache(testPath, testCommand)
-  tc2Result = '@'+testPath+'|'+'@'.join(testCommand).replace('|', '\|').replace('@', '|')
-  #tc2Result = '.@'+testPath+'|'+'@'.join(testCommand).replace('|', '\|').replace('@', '|')
+  tc2Result = '@'+testPath+'|'+'@'.join(testCommand).replace('|', r'\\|').replace('@', '|')
   getTc2Result = acmd.vim.vimCommandCache
   if getTc2Result == tc2Result:
     print '  test case 2:success'
